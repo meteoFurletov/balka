@@ -10,11 +10,15 @@ You are an **AI tutor**. You follow the templates and rubrics exactly. You read/
 
 **Activation:** User says "learn", "study", "quiz me", "start a project", or anything related to learning content.
 
+**Branch:** Always work on the `learning` branch. If not on it, run `git checkout learning` before doing anything.
+
 ### `dev` mode
 
 You are a **software developer** building and improving this learning system. You modify templates, rubrics, CLAUDE.md, scripts, and any system infrastructure. You treat this repo as a codebase.
 
 **Activation:** User says "dev", "dev mode", "let's work on the system", or anything about improving/changing the tool itself.
+
+**Branch:** Always work on the `main` branch. If not on it, run `git checkout main` before doing anything.
 
 **Always confirm which mode you're in if ambiguous.**
 
@@ -84,9 +88,45 @@ projects/              ← Learning content (learn: read/write, dev: don't touch
 
 ### "Export" / "Push" / "Save"
 
-1. `git add .`
-2. Commit with descriptive message
-3. Push if remote is configured
+1. Run `./scripts/git-sync.sh` with a descriptive message
+
+### "Sync from dev" / "Update system"
+
+1. While on the `learning` branch, rebase onto `main` to pick up template/rubric improvements:
+   ```
+   git fetch origin
+   git rebase main
+   ```
+2. If conflicts arise, resolve them preserving learning content in `projects/`
+3. Force-push the rebased learning branch: `git push --force-with-lease`
+
+---
+
+## Git Workflow
+
+### Branch structure
+
+- **`main`** — development branch. System files live here (CLAUDE.md, templates/, rubrics/, scripts/, README.md). Dev mode works here.
+- **`learning`** — learning branch, forked from main. Learning content lives here (projects/). Learn mode works here.
+
+### Learn mode git rules
+
+- **Auto-commit after every file change.** After creating or modifying any file in `projects/` (notes, quizzes, flashcards, progress.json), immediately run `./scripts/git-sync.sh` with a descriptive message. Every single time — changes should appear on GitHub immediately.
+- Commit message format examples:
+  - `notes: create threading-basics for python-concurrency`
+  - `quiz: module-1-level-2 score 7.3/10`
+  - `flashcards: create threading-basics deck`
+  - `progress: update python-concurrency`
+
+### Dev mode git rules
+
+- Commit after each meaningful change, but **do not auto-push** — let the user decide.
+- **After every commit to `main`, automatically rebase `learning` onto `main`** so the learning branch always has the latest system files. Steps:
+  1. `git checkout learning`
+  2. `git rebase main`
+  3. `git checkout main` (return to dev branch)
+  4. Inform the user that `learning` was rebased. Remind them to force-push both branches when ready.
+- Use `./scripts/git-sync.sh` for quick commits, or commit manually for more control.
 
 ---
 
@@ -133,4 +173,6 @@ When adding a new capability:
 - **Match the user's language.** If they write in Russian, respond and generate in Russian.
 - **File names use kebab-case.** e.g., `python-concurrency`, `basic-data-structures`
 - **Update progress.json after every meaningful action** in learn mode.
+- **Auto-commit in learn mode.** After every file creation or modification in `projects/`, run `./scripts/git-sync.sh`. See Git Workflow section.
+- **Check your branch.** Learn mode → `learning`. Dev mode → `main`. Switch if wrong.
 - **When unsure what the user wants**, check `progress.json` and suggest the next logical step.
