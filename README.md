@@ -24,7 +24,7 @@ Everything is plain markdown files and JSON. Claude Code reads the `CLAUDE.md` t
 1. **Curriculum** — Tell Claude what you want to learn. It generates a structured curriculum with modules and difficulty levels.
 2. **Notes** — Pick a topic and Claude generates detailed, Zettelkasten-style notes.
 3. **Flashcards** — Claude extracts key terms from notes into interactive flashcard decks.
-4. **Quizzes** — Claude quizzes you one question at a time, grades your answers, and tracks scores.
+4. **Quizzes** — Claude quizzes you in small batches (default: 3 questions) from a 10-question bank per level. Progress carries across sessions until the level is complete.
 
 **Your progress is just files.** Everything saves to `projects/`, and since it's a git repo, you get full version history and can push to GitHub anytime.
 
@@ -47,9 +47,13 @@ You: Generate notes for module 1
 Claude: [creates detailed note, saves to notes/]
 
 You: Quiz me on module 1 level 1
-Claude: Question 1: What is a Pod in Kubernetes?
+Claude: Question 3: What is a Pod in Kubernetes? (1 of 3 in this batch, 0/10 answered)
 You: A pod is the smallest deployable unit...
-Claude: [grades, moves to next question, saves results]
+Claude: [acknowledges, moves to next question]
+Claude: [after batch: grades all, shows "3/10 answered, avg: 7.8/10"]
+
+You: Set quiz size to 5
+Claude: [updates batch size to 5 for future sessions]
 
 You: Show my progress
 Claude: [reads progress.json, summarizes completion and scores]

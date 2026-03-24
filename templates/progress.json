@@ -6,7 +6,14 @@
   "modules": [],
   "notes_created": [],
   "flashcard_decks": [],
-  "quizzes": [],
+  "quizzes": {
+    "batch_size": 3,
+    "levels": {}
+  },
   "last_activity": "",
-  "next_suggested_action": ""
+  "next_suggested_action": "",
+  "_schema_notes": {
+    "quizzes.batch_size": "Number of questions per quiz session (default: 3, user-configurable)",
+    "quizzes.levels": "Keyed by 'module-N/level-N'. Each entry has: total_questions (int), answered (array of {question_number, score, date}), unanswered (array of question numbers), complete (bool), overall_score (number or null)"
+  }
 }

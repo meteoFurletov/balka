@@ -66,13 +66,26 @@ projects/              ← Learning content (learn: read/write, dev: don't touch
 3. Generate and save to `projects/<slug>/notes/<note-slug>.md`
 4. Update `progress.json`
 
-### "Quiz me on <module/level>"
+### "Quiz me on <module/level>" or "Quiz me [N] questions on <module/level>"
 
-1. Read `curriculum.md` for the questions
-2. Present questions **one at a time** — wait for user's answer before continuing
-3. After all questions, grade using `rubrics/grading.md`
-4. Save session to `projects/<slug>/quizzes/<YYYY-MM-DD-module-level>.md`
-5. Update `progress.json`
+1. Read `progress.json` to find unanswered questions for the requested level
+   - If no module/level specified, pick the next logical incomplete level
+   - If the level is already complete, ask: "You've completed this level (score: X). Want to redo it?" If yes, reset that level's progress in `progress.json`
+2. Read `curriculum.md` for the question bank
+3. Randomly select up to `batch_size` questions from the unanswered pool (user can override batch size inline: "quiz me 5 questions on...")
+4. Present questions **one at a time** — wait for user's answer before continuing
+5. After the batch, grade using `rubrics/grading.md`
+6. Show batch score AND running level progress: "You've now answered N/10 questions, running average: X.X/10"
+7. If level is fully complete, congratulate and suggest next level (see `rubrics/grading.md` mastery threshold)
+8. Save session to `projects/<slug>/quizzes/<YYYY-MM-DD-module-level-batch-N>.md` using `templates/quiz-session.md`
+9. Update `progress.json` (mark questions answered, update scores, set complete flag if done)
+10. Auto-sync with `./scripts/git-sync.sh`
+
+### "Set quiz size to <N>"
+
+1. Update `quizzes.batch_size` in `progress.json` for the current project
+2. Confirm the change to the user
+3. Auto-sync with `./scripts/git-sync.sh`
 
 ### "Flashcards for <topic>"
 
