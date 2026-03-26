@@ -70,12 +70,12 @@ A continuous one-at-a-time conversation — no batches, no saved files.
    - If no module/level specified, pick the next logical incomplete level
    - If the level is already complete, ask: "You've completed this level (score: X). Want to redo it?" If yes, reset that level's progress in `progress.json`
 2. Read `curriculum.md` for the question bank
-3. Pick a random unanswered question, present it
+3. Pick the next unanswered question in order (lowest question number first), present it
 4. Wait for the user's answer
 5. Grade using `rubrics/grading.md`, give feedback and a pro tip
 6. Save the numeric score (0-10) for that question to `progress.json` immediately — do NOT store the user's text answer anywhere
 7. Show running stats: "Question N/10 for this level — running average: X.X/10"
-8. Present the next random unanswered question
+8. Present the next unanswered question in order
 9. Continue until the user stops ("enough", "stop", "that's it") OR the level is complete
 10. If level complete, show final average and suggest next level (see `rubrics/grading.md` mastery threshold)
 11. On finish or stop, auto-sync with `./scripts/git-sync.sh`
