@@ -32,8 +32,6 @@ README.md              ← Project documentation (dev: editable)
 templates/             ← Content formats (dev: editable, learn: read-only)
   curriculum.md
   note.md
-  quiz-session.md
-  flashcard-deck.md
   progress.json        ← Schema for progress tracking
 rubrics/               ← AI behavior standards (dev: editable, learn: read-only)
   grading.md
@@ -44,8 +42,6 @@ projects/              ← Learning content (learn: read/write, dev: don't touch
     curriculum.md
     progress.json
     notes/
-    flashcards/
-    quizzes/
 ```
 
 ---
@@ -55,7 +51,7 @@ projects/              ← Learning content (learn: read/write, dev: don't touch
 ### "Start a new project on <topic>"
 
 1. Ask about their experience level and desired module count (default: 5)
-2. Create `projects/<slug>/` with full directory structure
+2. Create `projects/<slug>/` with `notes/` subdirectory
 3. Read `templates/curriculum.md`, then generate `curriculum.md`
 4. Initialize `progress.json` from `templates/progress.json`
 
@@ -66,33 +62,29 @@ projects/              ← Learning content (learn: read/write, dev: don't touch
 3. Generate and save to `projects/<slug>/notes/<note-slug>.md`
 4. Update `progress.json`
 
-### "Quiz me on <module/level>" or "Quiz me [N] questions on <module/level>"
+### "Quiz me on <module/level>"
+
+A continuous one-at-a-time conversation — no batches, no saved files.
 
 1. Read `progress.json` to find unanswered questions for the requested level
    - If no module/level specified, pick the next logical incomplete level
    - If the level is already complete, ask: "You've completed this level (score: X). Want to redo it?" If yes, reset that level's progress in `progress.json`
 2. Read `curriculum.md` for the question bank
-3. Randomly select up to `batch_size` questions from the unanswered pool (user can override batch size inline: "quiz me 5 questions on...")
-4. Present questions **one at a time** — wait for user's answer before continuing
-5. After the batch, grade using `rubrics/grading.md`
-6. Show batch score AND running level progress: "You've now answered N/10 questions, running average: X.X/10"
-7. If level is fully complete, congratulate and suggest next level (see `rubrics/grading.md` mastery threshold)
-8. Save session to `projects/<slug>/quizzes/<YYYY-MM-DD-module-level-batch-N>.md` using `templates/quiz-session.md`
-9. Update `progress.json` (mark questions answered, update scores, set complete flag if done)
-10. Auto-sync with `./scripts/git-sync.sh`
-
-### "Set quiz size to <N>"
-
-1. Update `quizzes.batch_size` in `progress.json` for the current project
-2. Confirm the change to the user
-3. Auto-sync with `./scripts/git-sync.sh`
+3. Pick a random unanswered question, present it
+4. Wait for the user's answer
+5. Grade using `rubrics/grading.md`, give feedback and a pro tip
+6. Save the numeric score (0-10) for that question to `progress.json` immediately — do NOT store the user's text answer anywhere
+7. Show running stats: "Question N/10 for this level — running average: X.X/10"
+8. Present the next random unanswered question
+9. Continue until the user stops ("enough", "stop", "that's it") OR the level is complete
+10. If level complete, show final average and suggest next level (see `rubrics/grading.md` mastery threshold)
+11. On finish or stop, auto-sync with `./scripts/git-sync.sh`
 
 ### "Flashcards for <topic>"
 
 1. Read the relevant note from `notes/`
-2. Read `templates/flashcard-deck.md`
-3. Generate and save to `projects/<slug>/flashcards/<topic-slug>.md`
-4. Run interactive review: show term → user responds → reveal answer
+2. Generate flashcards on the fly in conversation — no files saved
+3. Run interactive review: show term → user responds → reveal answer
 
 ### "Show my progress"
 
@@ -124,11 +116,10 @@ projects/              ← Learning content (learn: read/write, dev: don't touch
 
 ### Learn mode git rules
 
-- **Auto-commit after every file change.** After creating or modifying any file in `projects/` (notes, quizzes, flashcards, progress.json), immediately run `./scripts/git-sync.sh` with a descriptive message. Every single time — changes should appear on GitHub immediately.
+- **Auto-commit after every file change.** After creating or modifying any file in `projects/` (notes, progress.json), immediately run `./scripts/git-sync.sh` with a descriptive message. Every single time — changes should appear on GitHub immediately.
 - Commit message format examples:
   - `notes: create threading-basics for python-concurrency`
   - `quiz: module-1-level-2 score 7.3/10`
-  - `flashcards: create threading-basics deck`
   - `progress: update python-concurrency`
 
 ### Dev mode git rules

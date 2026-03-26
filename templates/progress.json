@@ -5,15 +5,19 @@
   "experience_level": "",
   "modules": [],
   "notes_created": [],
-  "flashcard_decks": [],
-  "quizzes": {
-    "batch_size": 3,
-    "levels": {}
-  },
+  "quiz_progress": {},
   "last_activity": "",
   "next_suggested_action": "",
   "_schema_notes": {
-    "quizzes.batch_size": "Number of questions per quiz session (default: 3, user-configurable)",
-    "quizzes.levels": "Keyed by 'module-N/level-N'. Each entry has: total_questions (int), answered (array of {question_number, score, date}), unanswered (array of question numbers), complete (bool), overall_score (number or null)"
+    "quiz_progress": "Keyed by 'module-N'. Each module has levels keyed by 'level-N'. Each level has: completed (bool), scores (object mapping question number to 0-10 grade), average (number or null)",
+    "quiz_progress_example": {
+      "module-1": {
+        "level-1": {
+          "completed": false,
+          "scores": { "3": 8, "7": 6, "1": 9 },
+          "average": 7.7
+        }
+      }
+    }
   }
 }
