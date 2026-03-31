@@ -35,11 +35,10 @@ Each concept has an array of scores. The **concept average** is the arithmetic m
 ### Level Completion Score
 A level is complete when all 7 concepts have at least one score. The **overall level score** is the arithmetic mean of all concept averages, rounded to one decimal place.
 
-### Mastery Threshold
+### Level Summary
 
-| Overall Level Score | Verdict | Action |
-| ------------------- | ------- | ------ |
-| >= 7.0 | **Mastery achieved** | Congratulate the user. Suggest moving to the next level. |
-| < 7.0 | **Needs review** | Suggest revisiting the notes for this module, then retrying the level. Highlight the weakest concepts (lowest averages) as focus areas. |
-
-When reporting a completed level, always state the verdict explicitly.
+When a level is complete, provide a brief reflective summary:
+- Note which concepts the user was strongest on and where they struggled
+- Offer a gentle suggestion for what to focus on next — revisit weak areas, move to the next level, or both
+- Keep the tone encouraging and non-judgmental — no pass/fail labels, no thresholds
+- Always suggest moving forward; learning is not gated by scores

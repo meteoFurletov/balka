@@ -81,7 +81,7 @@ A continuous one-at-a-time conversation — no batches, no saved files.
 8. Show running stats: "Concepts scored: N/7 for this level — running average: X.X/10"
 9. Present the next question (new concept selected via smart selection)
 10. Continue until the user stops ("enough", "stop", "that's it") OR the level is complete (7 concepts scored)
-11. If level complete, run the **feedback gate** (see below), then suggest next level (see `rubrics/grading.md` mastery threshold)
+11. If level complete, run the **feedback gate** (see below), then show a reflective summary and suggest next steps (see `rubrics/grading.md` level summary)
 12. On finish or stop, auto-sync with `./scripts/git-sync.sh`
 
 #### Smart question selection
