@@ -32,12 +32,6 @@ else
       projects/*/notes/*)
         slug=$(echo "$file" | sed 's|projects/\([^/]*\)/notes/\(.*\)\.md|\1/\2|')
         MSG="${MSG:+$MSG, }notes: $slug" ;;
-      projects/*/quizzes/*)
-        slug=$(echo "$file" | sed 's|projects/\([^/]*\)/quizzes/\(.*\)\.md|\1/\2|')
-        MSG="${MSG:+$MSG, }quiz: $slug" ;;
-      projects/*/flashcards/*)
-        slug=$(echo "$file" | sed 's|projects/\([^/]*\)/flashcards/\(.*\)\.md|\1/\2|')
-        MSG="${MSG:+$MSG, }flashcards: $slug" ;;
       projects/*/progress.json)
         project=$(echo "$file" | sed 's|projects/\([^/]*\)/.*|\1|')
         MSG="${MSG:+$MSG, }progress: update $project" ;;

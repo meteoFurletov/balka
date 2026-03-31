@@ -18,25 +18,16 @@ When generating a curriculum, follow this exact structure.
 A 1-2 sentence description of what this module covers and why it matters.
 
 ### Level 1: Fundamentals
-1. <Question exploring a basic concept>
-2. <Question exploring a basic concept>
-...
-10. <Question exploring a basic concept>
+Concepts: <concept-a>, <concept-b>, <concept-c>, <concept-d>, <concept-e>, <concept-f>, <concept-g>
 
 ### Level 2: Intermediate
-1. <Question requiring deeper understanding>
-...
-10. <Question requiring deeper understanding>
+Concepts: <concept-h>, <concept-i>, <concept-j>, <concept-k>, <concept-l>, <concept-m>, <concept-n>
 
 ### Level 3: Advanced
-1. <Question involving real-world application or edge cases>
-...
-10. <Question involving real-world application or edge cases>
+Concepts: <concept-h>, <concept-i>, <concept-j>, <concept-k>, <concept-l>, <concept-m>, <concept-n>
 
 ### Level 4: Expert
-1. <Question requiring synthesis, design decisions, or tradeoffs>
-...
-10. <Question requiring synthesis, design decisions, or tradeoffs>
+Concepts: <concept-o>, <concept-p>, <concept-q>, <concept-r>, <concept-s>, <concept-t>, <concept-u>
 
 ## Module 2: <Module Title>
 ... (same structure)
@@ -44,12 +35,16 @@ A 1-2 sentence description of what this module covers and why it matters.
 
 ## Guidelines
 
-- **10 questions per level, 4 levels per module** — this is fixed
-- Questions should be **open-ended**, not yes/no — they should require explanation
-- Each level should genuinely increase in complexity:
-  - Level 1: "What is X?" / "How does X work?"
-  - Level 2: "How does X interact with Y?" / "Compare X and Y"
-  - Level 3: "Design a solution using X" / "What happens when X fails?"
-  - Level 4: "Critique this architecture" / "What are the tradeoffs of X vs Y at scale?"
-- Tailor questions to the user's stated experience — skip what they already know
+- **7 concepts per level, 4 levels per module** — this is the default
+- Concepts should be **specific and assessable** — not vague topics but concrete things a learner should understand
+  - Good: "thread safety guarantees of the GIL", "deadlock detection strategies"
+  - Bad: "advanced threading", "miscellaneous topics"
+- Each level should genuinely increase in depth:
+  - Level 1: Core definitions, basic mechanisms, foundational "what is X" concepts
+  - Level 2: Interactions, comparisons, "how X relates to Y" concepts
+  - Level 3: Real-world application, failure modes, edge cases
+  - Level 4: Architecture decisions, tradeoffs at scale, synthesis across concepts
+- Concepts use **kebab-case** names: `thread-safety`, `gil-implications`, `lock-free-data-structures`
+- Tailor concepts to the user's stated experience — skip what they already know
 - Module titles should cover distinct aspects of the topic, not overlap
+- **Curriculum is a living document** — later levels may be generated or adjusted based on quiz performance and user feedback (see adaptive level generation in CLAUDE.md)

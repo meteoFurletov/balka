@@ -21,10 +21,9 @@ Everything is plain markdown files and JSON. Claude Code reads the `CLAUDE.md` t
 
 **The workflow:**
 
-1. **Curriculum** — Tell Claude what you want to learn. It generates a structured curriculum with modules and difficulty levels.
-2. **Notes** — Pick a topic and Claude generates detailed, Zettelkasten-style notes.
-3. **Flashcards** — Claude generates flashcards on the fly from your notes for interactive review in conversation.
-4. **Quizzes** — Claude quizzes you one question at a time in a continuous conversation. Scores are tracked per question in `progress.json` — no quiz files saved.
+1. **Curriculum** — Tell Claude what you want to learn. It generates a structured curriculum with modules and concept-based difficulty levels.
+2. **Notes** — Pick a topic and Claude generates depth-aware, Zettelkasten-style notes (e.g., `threading-L1.md` for fundamentals, `threading-L3.md` for advanced).
+3. **Quizzes** — Claude quizzes you one question at a time, generated fresh from concept lists. Scores are tracked per concept in `progress.json` — questions are never stored.
 
 **Your progress is just files.** Everything saves to `projects/`, and since it's a git repo, you get full version history and can push to GitHub anytime.
 
@@ -47,10 +46,10 @@ You: Generate notes for module 1
 Claude: [creates detailed note, saves to notes/]
 
 You: Quiz me on module 1 level 1
-Claude: Question 3: What is a Pod in Kubernetes?
+Claude: [generates question on "pod-basics" concept] What is a Pod in Kubernetes?
 You: A pod is the smallest deployable unit...
-Claude: [grades, gives feedback] Question 1/10 — running average: 8.0/10
-Claude: Next question: ...
+Claude: [grades, gives feedback] Concepts scored: 1/7 — running average: 8.0/10
+Claude: [generates next question on a different concept]
 You: stop
 Claude: [saves progress, syncs]
 

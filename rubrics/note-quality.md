@@ -30,6 +30,7 @@ Every note must have all sections from `templates/note.md`. Missing sections mea
 
 - Every note should reference at least 1 other note in the project (if others exist)
 - Connections should explain the relationship, not just link
+- Include both **horizontal** (same level, different topic) and **vertical** (same topic, different level) connections when applicable
 
 ### Readability
 

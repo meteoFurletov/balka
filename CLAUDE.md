@@ -59,26 +59,58 @@ projects/              ← Learning content (learn: read/write, dev: don't touch
 
 1. Read project's `curriculum.md` to find the relevant section
 2. Read `templates/note.md` and `rubrics/note-quality.md`
-3. Generate and save to `projects/<slug>/notes/<note-slug>.md`
-4. Update `progress.json`
+3. Determine the depth level — use the level the user is currently working on, or ask if ambiguous
+4. Generate and save to `projects/<slug>/notes/<topic>-L<level>.md` (e.g., `threading-L1.md`)
+5. Include both horizontal and vertical connections in the Connections section
+6. Update `progress.json`
 
 ### "Quiz me on <module/level>"
 
 A continuous one-at-a-time conversation — no batches, no saved files.
 
-1. Read `progress.json` to find unanswered questions for the requested level
+1. Read `progress.json` to find the requested level's state
    - If no module/level specified, pick the next logical incomplete level
    - If the level is already complete, ask: "You've completed this level (score: X). Want to redo it?" If yes, reset that level's progress in `progress.json`
-2. Read `curriculum.md` for the question bank
-3. Pick the next unanswered question in order (lowest question number first), present it
-4. Wait for the user's answer
-5. Grade using `rubrics/grading.md`, give feedback and a pro tip
-6. Save the numeric score (0-10) for that question to `progress.json` immediately — do NOT store the user's text answer anywhere
-7. Show running stats: "Question N/10 for this level — running average: X.X/10"
-8. Present the next unanswered question in order
-9. Continue until the user stops ("enough", "stop", "that's it") OR the level is complete
-10. If level complete, show final average and suggest next level (see `rubrics/grading.md` mastery threshold)
-11. On finish or stop, auto-sync with `./scripts/git-sync.sh`
+2. Read `curriculum.md` for the concept list for that level
+3. Select the next concept to quiz using smart selection (see below)
+4. **Generate a fresh question on the fly** targeting that concept — do NOT use pre-written questions
+   - Question difficulty should match the level (L1: definitional, L2: comparative, L3: applied, L4: synthesis)
+5. Wait for the user's answer
+6. Grade using `rubrics/grading.md`, give feedback and a pro tip
+7. Save the numeric score (0-10) for that concept to `progress.json` immediately — do NOT store the user's text answer anywhere
+8. Show running stats: "Concepts scored: N/7 for this level — running average: X.X/10"
+9. Present the next question (new concept selected via smart selection)
+10. Continue until the user stops ("enough", "stop", "that's it") OR the level is complete (7 concepts scored)
+11. If level complete, run the **feedback gate** (see below), then suggest next level (see `rubrics/grading.md` mastery threshold)
+12. On finish or stop, auto-sync with `./scripts/git-sync.sh`
+
+#### Smart question selection
+
+When picking the next concept to quiz, prioritize in this order:
+1. **Untouched concepts** — concepts with no scores yet (pick in curriculum order)
+2. **Weak/declining concepts** — concepts with low average scores (< 7) or declining trend
+3. **Least-recently-tested** — concepts not tested in a while
+4. **Mastered concepts** — concepts with average >= 8 are mostly skipped unless nothing else remains
+
+#### Feedback gate (between levels)
+
+When a level is complete (7 concepts scored):
+1. Show summary: strong concepts (avg >= 8), weak concepts (avg < 7), overall level score
+2. Ask for freeform feedback: "What should the next level focus on? Anything to skip, go deeper on, or add?"
+3. Store feedback text in `progress.json` keyed by level (e.g., `"level-1-feedback": "..."`)
+4. Use this feedback + weak concept scores when generating the next level's concept list (adaptive level generation)
+
+#### Adaptive level generation
+
+When the next level doesn't exist yet in `curriculum.md`, or when generating level concepts, shape them using:
+1. **Weak concepts from the previous level** — carry forward concepts with avg < 7, go deeper on them
+2. **User feedback** — honor explicit requests to skip, focus, or add topics
+3. **Natural topic progression** — what logically comes next in the domain at the next difficulty tier
+
+After generating the new level's concept list:
+- Append it to `curriculum.md` under the appropriate module
+- Add a brief `<!-- Shaped by: ... -->` comment noting what influenced the concept selection (e.g., weak concepts carried forward, user feedback themes)
+- Update `progress.json` with the new level structure (empty concept arrays)
 
 ### "Flashcards for <topic>"
 

@@ -9,15 +9,21 @@
   "last_activity": "",
   "next_suggested_action": "",
   "_schema_notes": {
-    "quiz_progress": "Keyed by 'module-N'. Each module has levels keyed by 'level-N'. Each level has: completed (bool), scores (object mapping question number to 0-10 grade), average (number or null)",
+    "quiz_progress": "Keyed by 'module-N'. Each module has levels keyed by 'level-N'. Each level has: completed (bool), concepts (object mapping concept slug to array of scores), average (number or null), feedback (string or null — user's freeform feedback after completing the level)",
     "quiz_progress_example": {
       "module-1": {
         "level-1": {
           "completed": false,
-          "scores": { "3": 8, "7": 6, "1": 9 },
-          "average": 7.7
+          "concepts": {
+            "threading-vs-processes": [8, 9],
+            "gil-basics": [6, 4],
+            "thread-lifecycle": []
+          },
+          "average": 6.75,
+          "feedback": null
         }
       }
-    }
+    },
+    "concept_scores": "Each concept maps to an array of scores (0-10). Multiple scores mean the concept was tested more than once. Average is recalculated from all concept averages after each answer. 7 scored concepts (at least one score each) completes a level."
   }
 }

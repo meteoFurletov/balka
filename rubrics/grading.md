@@ -29,17 +29,17 @@ Use this rubric to score quiz answers on a 0-10 scale. Be consistent and fair.
 
 ## Score Aggregation
 
-### Batch Score
-The batch score is the **arithmetic mean** of all question scores within that batch, rounded to one decimal place.
+### Concept Score
+Each concept has an array of scores. The **concept average** is the arithmetic mean of all scores for that concept, rounded to one decimal place.
 
 ### Level Completion Score
-When all 10 questions in a level have been answered (across multiple batches), calculate the **overall level score** as the arithmetic mean of all 10 individual question scores, rounded to one decimal place.
+A level is complete when all 7 concepts have at least one score. The **overall level score** is the arithmetic mean of all concept averages, rounded to one decimal place.
 
 ### Mastery Threshold
 
 | Overall Level Score | Verdict | Action |
 | ------------------- | ------- | ------ |
 | >= 7.0 | **Mastery achieved** | Congratulate the user. Suggest moving to the next level. |
-| < 7.0 | **Needs review** | Suggest revisiting the notes for this module, then retrying the level. Highlight the weakest questions (lowest scores) as focus areas. |
+| < 7.0 | **Needs review** | Suggest revisiting the notes for this module, then retrying the level. Highlight the weakest concepts (lowest averages) as focus areas. |
 
 When reporting a completed level, always state the verdict explicitly.
