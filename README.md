@@ -22,7 +22,7 @@ Everything is plain markdown files and JSON. Claude Code reads the `CLAUDE.md` t
 **The workflow:**
 
 1. **Curriculum** — Tell Claude what you want to learn. It generates a structured curriculum with modules and concept-based difficulty levels.
-2. **Notes** — Pick a topic and Claude generates depth-aware, Zettelkasten-style notes (e.g., `threading-L1.md` for fundamentals, `threading-L3.md` for advanced).
+2. **Notes** — Pick a topic and Claude generates depth-aware, Zettelkasten-style notes (e.g., `L1-threading.md` for fundamentals, `L3-threading.md` for advanced).
 3. **Quizzes** — Claude quizzes you one question at a time, generated fresh from concept lists. Scores are tracked per concept in `progress.json` — questions are never stored.
 
 **Your progress is just files.** Everything saves to `projects/`, and since it's a git repo, you get full version history and can push to GitHub anytime.

@@ -4,9 +4,9 @@ When generating a note, follow this structure. Notes should be comprehensive eno
 
 ## File Naming
 
-Notes are depth-aware. Name files as `<topic>-L<level>.md`:
-- `threading-L1.md` — Level 1 fundamentals
-- `threading-L3.md` — Level 3 advanced depth
+Notes are depth-aware. Name files as `L<level>-<topic>.md`:
+- `L1-threading.md` — Level 1 fundamentals
+- `L3-threading.md` — Level 3 advanced depth
 
 If no level is specified, default to the level the user is currently working on.
 
@@ -50,8 +50,8 @@ What do people get wrong about this topic? What are the misconceptions?
 ## Connections
 
 - **Related to:** [[other-note-name]] — how this connects to other topics at the same level (horizontal)
-- **Builds on:** [[prerequisite-note-L1]] — what you should understand first (vertical — lower level)
-- **Leads to:** [[next-note-L3]] — what to study next (vertical — higher level)
+- **Builds on:** [[L1-prerequisite-note]] — what you should understand first (vertical — lower level)
+- **Leads to:** [[L3-next-note]] — what to study next (vertical — higher level)
 
 ## Key Takeaways
 
@@ -74,8 +74,8 @@ A Level 1 note should be accessible to beginners. A Level 3 note can assume the 
 ## Connection Types
 
 Notes connect in two dimensions:
-- **Horizontal** — same level, different topic (e.g., `threading-L2.md` ↔ `synchronization-L2.md`)
-- **Vertical** — same topic, different depth (e.g., `threading-L1.md` → `threading-L3.md`)
+- **Horizontal** — same level, different topic (e.g., `L2-threading.md` ↔ `L2-synchronization.md`)
+- **Vertical** — same topic, different depth (e.g., `L1-threading.md` → `L3-threading.md`)
 
 Always include both connection types in the Connections section when applicable notes exist.
 

@@ -60,7 +60,7 @@ projects/              ← Learning content (learn: read/write, dev: don't touch
 1. Read project's `curriculum.md` to find the relevant section
 2. Read `templates/note.md` and `rubrics/note-quality.md`
 3. Determine the depth level — use the level the user is currently working on, or ask if ambiguous
-4. Generate and save to `projects/<slug>/notes/<topic>-L<level>.md` (e.g., `threading-L1.md`)
+4. Generate and save to `projects/<slug>/notes/L<level>-<topic>.md` (e.g., `L1-threading.md`)
 5. Include both horizontal and vertical connections in the Connections section
 6. Update `progress.json`
 
