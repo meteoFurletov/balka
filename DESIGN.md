@@ -1,6 +1,8 @@
-# Design
+# Design — Balka
 
 Why this system is shaped the way it is. Read this before proposing structural changes.
+
+The name **balka** comes from the dry erosional valleys of the Central Russian Upland — landforms that aren't dramatic or fast-moving, but that accumulate sediment over centuries until the soil becomes the richest in the region. That's the intent: a slow, compounding personal knowledge system. Not a productivity tool. A valley.
 
 ## Goals
 

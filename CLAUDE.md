@@ -1,4 +1,4 @@
-# Personal Learning & Task Management System
+# Balka — Personal Learning & Task Management System
 
 A file-based system powered by Claude Code. Two modes, one repo.
 

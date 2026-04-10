@@ -1,6 +1,8 @@
-# Personal Learning & Task Management System
+# Balka
 
 A file-based, AI-powered personal OS that runs inside [Claude Code](https://docs.anthropic.com/en/docs/claude-code). Learning, tasks, research, and a knowledge wiki — all plain markdown and JSON, all version-controlled, one mode.
+
+> *A balka (Russian: балка) is a dry, flat-bottomed erosional valley typical of the Central Russian Upland — older and gentler than a ravine, where sediment and knowledge quietly accumulate over long time.*
 
 This repo is the **public harness**: templates, rubrics, slash commands, and scripts. Zero personal data. You fork it, personalize it, and keep your content in your fork. Harness updates flow one way — from upstream to your fork.
 
@@ -8,11 +10,11 @@ This repo is the **public harness**: templates, rubrics, slash commands, and scr
 
 ```bash
 # 1. Fork this repo on GitHub, then clone your fork
-git clone git@github.com:<you>/learning-system.git
-cd learning-system
+git clone git@github.com:<you>/balka-private.git
+cd balka-private
 
 # 2. Add upstream so you can pull harness updates later
-git remote add upstream git@github.com:meteof/learning-system.git
+git remote add upstream git@github.com:meteoFurletov/balka.git
 
 # 3. Personalize USER.md (your name, role, active focus)
 $EDITOR USER.md
