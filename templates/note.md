@@ -52,6 +52,7 @@ What do people get wrong about this topic? What are the misconceptions?
 - **Related to:** [[other-note-name]] — how this connects to other topics at the same level (horizontal)
 - **Builds on:** [[L1-prerequisite-note]] — what you should understand first (vertical — lower level)
 - **Leads to:** [[L3-next-note]] — what to study next (vertical — higher level)
+- **Wiki:** [[concepts/<slug>]], [[entities/<slug>]] — shared knowledge pages this note builds on (omit the line if none)
 
 ## Key Takeaways
 
@@ -73,11 +74,12 @@ A Level 1 note should be accessible to beginners. A Level 3 note can assume the 
 
 ## Connection Types
 
-Notes connect in two dimensions:
+Notes connect in three dimensions:
 - **Horizontal** — same level, different topic (e.g., `L2-threading.md` ↔ `L2-synchronization.md`)
 - **Vertical** — same topic, different depth (e.g., `L1-threading.md` → `L3-threading.md`)
+- **Wiki** — shared knowledge pages under `wiki/` (e.g., `[[concepts/event-loop]]`)
 
-Always include both connection types in the Connections section when applicable notes exist.
+Before generating a note, skim `wiki/index.md` and read any relevant pages — build on them rather than duplicating. Include all applicable connection types in the Connections section. When a note references a wiki page, also add the note path to that page's `linked_notes` frontmatter and `## Linked Notes` section (bidirectional linking).
 
 ## General Guidelines
 

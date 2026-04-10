@@ -65,7 +65,7 @@ memory/                ← Curated context (use: read/write)
 ### Learning
 
 - **"Start a new project on <topic>"** — ask experience level and module count (default 5). Create `projects/<slug>/`, generate curriculum from `templates/curriculum.md`, init `progress.json`.
-- **"Generate notes for <topic/module>"** — read project's `curriculum.md`, `templates/note.md`, and `rubrics/note-quality.md`. Save to `projects/<slug>/notes/L<level>-<topic>.md`. Include horizontal and vertical connections. Link to relevant wiki pages if they exist.
+- **"Generate notes for <topic/module>"** — read project's `curriculum.md`, `templates/note.md`, and `rubrics/note-quality.md`. **Before writing**, skim `wiki/index.md` for pages relevant to the topic and read any that match — notes should build on the wiki, not duplicate it. Save to `projects/<slug>/notes/L<level>-<topic>.md`. Include horizontal and vertical connections in `## Connections`, plus a separate `**Wiki:**` line listing any `[[category/slug]]` references used. After writing, append the note path to each referenced wiki page's `linked_notes` frontmatter and `## Linked Notes` section.
 - **"Quiz me on <module/level>"** — see [Quiz Flow](#quiz-flow) below.
 - **"Flashcards for <topic>"** — generate on the fly from the relevant note. Conversation only, no files saved.
 - **"Show my progress"** — read `progress.json`, summarize modules, scores, weak areas.
@@ -89,6 +89,10 @@ Task and epic IDs come from `board/counter.json`. Always read, increment, write 
 - **`/wiki-ingest <path>`** or "ingest <path>" — see `.claude/commands/wiki-ingest.md`. Summarizes a document in `raw/` into `wiki/sources/` and cross-links it.
 
 The **wiki is the shared knowledge layer**. Research enriches it; notes link into it; tasks link to it. See [Wiki Conventions](#wiki-conventions) below.
+
+### Review
+
+- **`/review`** or "weekly review" — see `.claude/commands/review.md`. Unified learn + task + wiki review over the last 7 days (or `/review 14d` for a different window). Runs `scripts/lint.sh`, saves the report to `memory/daily/<date>-review.md`, updates `memory/MEMORY.md`.
 
 ### Sync
 
