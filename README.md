@@ -2,20 +2,34 @@
 
 A file-based, AI-powered personal OS that runs inside [Claude Code](https://docs.anthropic.com/en/docs/claude-code). Learning, tasks, research, and a knowledge wiki — all plain markdown and JSON, all version-controlled, one mode.
 
+This repo is the **public harness**: templates, rubrics, slash commands, and scripts. Zero personal data. You fork it, personalize it, and keep your content in your fork. Harness updates flow one way — from upstream to your fork.
+
 ## Quick Start
 
 ```bash
-git init learning-system && cd learning-system
+# 1. Fork this repo on GitHub, then clone your fork
+git clone git@github.com:<you>/learning-system.git
+cd learning-system
+
+# 2. Add upstream so you can pull harness updates later
+git remote add upstream git@github.com:meteof/learning-system.git
+
+# 3. Personalize USER.md (your name, role, active focus)
+$EDITOR USER.md
+
+# 4. Start Claude Code
 claude
 
+# 5. Use it
 > Start a new project on Python concurrency
 > add task: review SQLMesh incremental models
 > /add-epic Personal Task Management System
+> /review
 ```
 
 ## How It Works
 
-Everything is plain markdown files and JSON. Claude Code reads `CLAUDE.md` to understand how to be your tutor, task manager, and research assistant, then reads/writes files as you work.
+Everything is plain markdown files and JSON. Claude Code reads `CLAUDE.md` to understand how to be your tutor, task manager, and research assistant, then reads/writes files as you work. Git is the persistence layer; Obsidian (optional) is a visual interface over the same files.
 
 Two modes:
 
@@ -27,7 +41,7 @@ Two modes:
 ### Learning
 
 1. **Curriculum** — Tell Claude what you want to learn. It generates a structured curriculum with modules and concept-based difficulty levels.
-2. **Notes** — Pick a topic and Claude generates depth-aware, Zettelkasten-style notes (e.g., `L1-threading.md` for fundamentals, `L3-threading.md` for advanced).
+2. **Notes** — Pick a topic and Claude generates depth-aware, Zettelkasten-style notes (e.g., `L1-threading.md` for fundamentals, `L3-threading.md` for advanced). Notes check the wiki first and cross-link to existing pages.
 3. **Quizzes** — Claude quizzes you one question at a time, generated fresh from concept lists. Scores tracked per concept in `progress.json` — questions are never stored.
 4. **Adaptive levels** — Weak concepts and your feedback shape the next level's concept list.
 
@@ -40,28 +54,61 @@ A file-based kanban. Tasks live in `tasks/NK-<N>.md`, epics in `epics/EP-<N>.md`
 - `/add-epic <title>` — create a new epic
 - `/link-task NK-X EP-Y` — attach a task to an epic
 
-### Wiki (coming in Phase 2)
+### Research & wiki
 
-A compounding knowledge base under `wiki/`. Research on tasks enriches it. Notes link to it. Everything cross-references via Obsidian-style `[[wiki-links]]`.
+- `/research <topic> for NK-X` — focused research written into the task file, with reusable findings promoted to `wiki/`
+- `/wiki-ingest raw/articles/<file>` — summarize a source document into `wiki/sources/` and cross-link to concept pages
 
-## Project Structure
+The wiki is a compounding knowledge base. Tasks link to it, notes link to it, research enriches it. Cross-references use Obsidian-style `[[category/slug]]` links and are bidirectional by convention.
+
+### Weekly review
+
+- `/review` — unified learn + task + wiki + epic review over the last 7 days. Runs `scripts/lint.sh` to surface stuck tasks, orphan wiki pages, stale content, and broken links. Saves a dated report to `memory/daily/` and updates `memory/MEMORY.md`.
+
+## Repository Structure
 
 ```text
-CLAUDE.md         → System router
-USER.md           → Personal context
-templates/        → Content format definitions
-rubrics/          → Quality standards
-scripts/          → Automation (git-sync)
-.claude/commands/ → Slash commands
+# Harness (upstream, public)
+CLAUDE.md             → System router
+templates/            → Content format definitions
+rubrics/              → Quality standards
+scripts/              → git-sync.sh, lint.sh
+.claude/commands/     → Slash commands
 
-projects/         → Your learning projects
-board/            → Kanban state (index, counter, log)
-tasks/            → Task cards (NK-<N>.md)
-epics/            → Epics (EP-<N>.md)
-wiki/             → Knowledge base
-raw/              → Source documents
-memory/           → Curated context across sessions
+# Your data (fork only)
+USER.md               → Personal context
+projects/             → Learning projects
+board/                → Kanban state (index, counter, log)
+tasks/                → Task cards (NK-<N>.md)
+epics/                → Epics (EP-<N>.md)
+wiki/                 → Knowledge base
+raw/                  → Source documents
+memory/               → Curated context across sessions
 ```
+
+## Pulling Harness Updates
+
+When the upstream harness improves, pull the changes into your fork:
+
+```bash
+git fetch upstream
+git checkout main
+git merge upstream/main       # or rebase, if you haven't diverged
+git push origin main
+
+# Then rebase your learning branch onto the updated main
+git checkout learning
+git rebase main
+git push --force-with-lease
+```
+
+Your personal data (`projects/`, `board/`, `tasks/`, etc.) lives on `learning` and is never touched by harness updates to `main`.
+
+## Contributing
+
+Pull requests to the harness are welcome. Scope: templates, rubrics, slash commands, scripts, CLAUDE.md, README.md, DESIGN.md. **Never commit personal data to the upstream repo.** If you fork and want to contribute back, branch from `main` and keep the PR limited to harness files.
+
+See [DESIGN.md](DESIGN.md) for the full rationale behind the structure.
 
 ## Example Session
 
@@ -72,13 +119,22 @@ Claude: [asks about experience, creates project folder, generates curriculum]
 You: add task: set up a local k3s cluster to practice
 Claude: [creates NK-001, appends to board, git-syncs]
 
+You: /link-task NK-001 EP-1
+Claude: [links task to epic, updates both files and board]
+
+You: research kind vs k3s vs minikube for local development for NK-001
+Claude: [reads research-quality rubric, gathers, writes findings to NK-001,
+         creates wiki/comparisons/local-k8s-tools.md, cross-links]
+
 You: Quiz me on module 1 level 1
-Claude: [generates question on "pod-basics" concept]
-...
+Claude: [generates a fresh question on a concept] What is a Pod?
+You: [answer]
+Claude: [grades, gives feedback, saves score to progress.json]
 
 You: /move-task NK-001 in-progress
 Claude: [updates frontmatter, board, log, git-syncs]
 
-You: Push
-Claude: [git add, commit, push]
+You: /review
+Claude: [runs lint, reads log + progress + wiki, writes memory/daily/...-review.md,
+         summarizes: 3 tasks moved, 1 quiz level completed, 1 new wiki page]
 ```
