@@ -1,214 +1,147 @@
-# Interactive Learning System
+# Personal Learning & Task Management System
 
-This system operates in two modes. The user switches between them explicitly.
+A file-based system powered by Claude Code. Two modes, one repo.
 
 ## Modes
 
-### `learn` mode (default)
+| Mode | Role | Activators | Branch |
+|------|------|-----------|--------|
+| **use** (default) | AI tutor + task manager + researcher | "learn", "study", "quiz me", "start a project", "add task", "move", "research", "board", "review" | `learning` |
+| **dev** | System developer | "dev", "dev mode", "let's work on the system" | `main` |
 
-You are an **AI tutor**. You follow the templates and rubrics exactly. You read/write files in `projects/`. You never modify files in `templates/`, `rubrics/`, or system-level files.
-
-**Activation:** User says "learn", "study", "quiz me", "start a project", or anything related to learning content.
-
-**Branch:** Always work on the `learning` branch. If not on it, run `git checkout learning` before doing anything.
-
-### `dev` mode
-
-You are a **software developer** building and improving this learning system. You modify templates, rubrics, CLAUDE.md, scripts, and any system infrastructure. You treat this repo as a codebase.
-
-**Activation:** User says "dev", "dev mode", "let's work on the system", or anything about improving/changing the tool itself.
-
-**Branch:** Always work on the `main` branch. If not on it, run `git checkout main` before doing anything.
-
-**Always confirm which mode you're in if ambiguous.**
+**Always confirm mode if ambiguous.** Never cross-write between mode scopes. Switch branches before acting if you're on the wrong one.
 
 ---
 
-## Directory Layout
+## Directory Map
 
 ```text
-CLAUDE.md              ← System config (dev: editable, learn: read-only)
-README.md              ← Project documentation (dev: editable)
-templates/             ← Content formats (dev: editable, learn: read-only)
+CLAUDE.md              ← System router (dev: editable, use: read-only)
+README.md              ← Project documentation
+USER.md                ← Personal context (dev: editable, use: read-only)
+templates/             ← Content format definitions (dev: editable, use: read-only)
   curriculum.md
   note.md
-  progress.json        ← Schema for progress tracking
-rubrics/               ← AI behavior standards (dev: editable, learn: read-only)
+  task.md
+  epic.md
+  wiki-page.md
+  progress.json
+rubrics/               ← Quality standards (dev: editable, use: read-only)
   grading.md
   note-quality.md
-scripts/               ← Utility scripts (dev: create and modify)
-projects/              ← Learning content (learn: read/write, dev: don't touch)
+scripts/               ← Automation
+  git-sync.sh          ← Auto-commit and push
+.claude/commands/      ← Slash command definitions
+projects/              ← Learning content (use: read/write)
   <slug>/
     curriculum.md
     progress.json
     notes/
+board/                 ← Kanban state (use: read/write)
+  index.md             ← Task catalog by status
+  counter.json         ← Next IDs for tasks and epics
+  log.md               ← Append-only activity log
+tasks/                 ← One file per task (use: read/write)
+  NK-<N>.md
+epics/                 ← Epics (use: read/write)
+  index.md
+  EP-<N>.md
+wiki/                  ← Knowledge base (use: read/write)
+  index.md
+  concepts/
+  entities/
+  sources/
+  comparisons/
+raw/                   ← Source documents (use: read/write)
+memory/                ← Curated context (use: read/write)
+  MEMORY.md
+  daily/
 ```
 
 ---
 
-## Learn Mode — Commands
+## Use Mode — Commands
 
-### "Start a new project on <topic>"
+### Learning
 
-1. Ask about their experience level and desired module count (default: 5)
-2. Create `projects/<slug>/` with `notes/` subdirectory
-3. Read `templates/curriculum.md`, then generate `curriculum.md`
-4. Initialize `progress.json` from `templates/progress.json`
+- **"Start a new project on <topic>"** — ask experience level and module count (default 5). Create `projects/<slug>/`, generate curriculum from `templates/curriculum.md`, init `progress.json`.
+- **"Generate notes for <topic/module>"** — read project's `curriculum.md`, `templates/note.md`, and `rubrics/note-quality.md`. Save to `projects/<slug>/notes/L<level>-<topic>.md`. Include horizontal and vertical connections. Link to relevant wiki pages if they exist.
+- **"Quiz me on <module/level>"** — see [Quiz Flow](#quiz-flow) below.
+- **"Flashcards for <topic>"** — generate on the fly from the relevant note. Conversation only, no files saved.
+- **"Show my progress"** — read `progress.json`, summarize modules, scores, weak areas.
 
-### "Generate notes for <topic/module>"
+### Task management
 
-1. Read project's `curriculum.md` to find the relevant section
-2. Read `templates/note.md` and `rubrics/note-quality.md`
-3. Determine the depth level — use the level the user is currently working on, or ask if ambiguous
-4. Generate and save to `projects/<slug>/notes/L<level>-<topic>.md` (e.g., `L1-threading.md`)
-5. Include both horizontal and vertical connections in the Connections section
-6. Update `progress.json`
+All task and epic commands live in `.claude/commands/`. Read the command file before executing.
 
-### "Quiz me on <module/level>"
+- **`/add-task`** or "add task: <title>" — see `.claude/commands/add-task.md`
+- **`/move-task`** or "move NK-XXX to <status>" — see `.claude/commands/move-task.md`
+- **`/add-epic`** or "add epic: <title>" — see `.claude/commands/add-epic.md`
+- **`/link-task`** or "link NK-XXX to EP-Y" — see `.claude/commands/link-task.md`
 
-A continuous one-at-a-time conversation — no batches, no saved files.
+Valid task statuses: `idea` → `todo` → `in-progress` → `done`.
 
-1. Read `progress.json` to find the requested level's state
-   - If no module/level specified, pick the next logical incomplete level
-   - If the level is already complete, ask: "You've completed this level (score: X). Want to redo it?" If yes, reset that level's progress in `progress.json`
-2. Read `curriculum.md` for the concept list for that level
-3. Select the next concept to quiz using smart selection (see below)
-4. **Generate a fresh question on the fly** targeting that concept — do NOT use pre-written questions
-   - Question difficulty should match the level (L1: definitional, L2: comparative, L3: applied, L4: synthesis)
-5. Wait for the user's answer
-6. Grade using `rubrics/grading.md`, give feedback and a pro tip
-7. Save the numeric score (0-10) for that concept to `progress.json` immediately — do NOT store the user's text answer anywhere
-8. Show running stats: "Concepts scored: N/7 for this level — running average: X.X/10"
-9. Present the next question (new concept selected via smart selection)
-10. Continue until the user stops ("enough", "stop", "that's it") OR the level is complete (7 concepts scored)
-11. If level complete, run the **feedback gate** (see below), then show a reflective summary and suggest next steps (see `rubrics/grading.md` level summary)
-12. On finish or stop, auto-sync with `./scripts/git-sync.sh`
+Task and epic IDs come from `board/counter.json`. Always read, increment, write back.
 
-#### Smart question selection
+### Sync
 
-When picking the next concept to quiz, prioritize in this order:
-1. **Untouched concepts** — concepts with no scores yet (pick in curriculum order)
-2. **Weak/declining concepts** — concepts with low average scores (< 7) or declining trend
-3. **Least-recently-tested** — concepts not tested in a while
-4. **Mastered concepts** — concepts with average >= 8 are mostly skipped unless nothing else remains
-
-#### Feedback gate (between levels)
-
-When a level is complete (7 concepts scored):
-1. Show summary: strong concepts (avg >= 8), weak concepts (avg < 7), overall level score
-2. Ask for freeform feedback: "What should the next level focus on? Anything to skip, go deeper on, or add?"
-3. Store feedback text in `progress.json` keyed by level (e.g., `"level-1-feedback": "..."`)
-4. Use this feedback + weak concept scores when generating the next level's concept list (adaptive level generation)
-
-#### Adaptive level generation
-
-When the next level doesn't exist yet in `curriculum.md`, or when generating level concepts, shape them using:
-1. **Weak concepts from the previous level** — carry forward concepts with avg < 7, go deeper on them
-2. **User feedback** — honor explicit requests to skip, focus, or add topics
-3. **Natural topic progression** — what logically comes next in the domain at the next difficulty tier
-
-After generating the new level's concept list:
-- Append it to `curriculum.md` under the appropriate module
-- Add a brief `<!-- Shaped by: ... -->` comment noting what influenced the concept selection (e.g., weak concepts carried forward, user feedback themes)
-- Update `progress.json` with the new level structure (empty concept arrays)
-
-### "Flashcards for <topic>"
-
-1. Read the relevant note from `notes/`
-2. Generate flashcards on the fly in conversation — no files saved
-3. Run interactive review: show term → user responds → reveal answer
-
-### "Show my progress"
-
-1. Read `progress.json` for current or all projects
-2. Summarize: modules completed, scores, notes created, weak areas
-
-### "Export" / "Push" / "Save"
-
-1. Run `./scripts/git-sync.sh` with a descriptive message
-
-### "Sync from dev" / "Update system"
-
-1. While on the `learning` branch, rebase onto `main` to pick up template/rubric improvements:
-   ```
-   git fetch origin
-   git rebase main
-   ```
-2. If conflicts arise, resolve them preserving learning content in `projects/`
-3. Force-push the rebased learning branch: `git push --force-with-lease`
+- **"Export" / "Push" / "Save"** — run `./scripts/git-sync.sh`.
+- **"Sync from dev" / "Update system"** — on `learning`, `git fetch origin && git rebase main`, then `git push --force-with-lease`.
 
 ---
 
-## Git Workflow
+## Quiz Flow
 
-### Branch structure
+A continuous one-at-a-time conversation — no batches, no saved files.
 
-- **`main`** — development branch. System files live here (CLAUDE.md, templates/, rubrics/, scripts/, README.md). Dev mode works here.
-- **`learning`** — learning branch, forked from main. Learning content lives here (projects/). Learn mode works here.
+1. Read `progress.json` for the requested level's state. If no level specified, pick the next incomplete one. If already complete, ask if the user wants to redo it (resets that level).
+2. Read `curriculum.md` for the concept list.
+3. Pick the next concept via **smart selection**:
+   1. Untouched concepts (curriculum order)
+   2. Weak/declining concepts (avg < 7)
+   3. Least-recently-tested
+   4. Mastered concepts (avg ≥ 8) only if nothing else remains
+4. **Generate a fresh question on the fly** for that concept — never pre-written. Difficulty matches level: L1 definitional, L2 comparative, L3 applied, L4 synthesis.
+5. Wait for the answer. Grade using `rubrics/grading.md`. Give feedback and a pro tip.
+6. Save the numeric score (0–10) to `progress.json` immediately. Never save the user's text answer.
+7. Show running stats: "Concepts scored: N/7 — running average: X.X/10". Present the next question.
+8. Stop on "enough"/"stop"/"that's it" or when the level is complete (7 concepts scored).
+9. On level complete → run the **feedback gate**: show strong/weak concepts, ask for freeform feedback, store it keyed by level (e.g., `level-1-feedback`), then reflective summary per `rubrics/grading.md`.
+10. On finish or stop → `./scripts/git-sync.sh`.
 
-### Learn mode git rules
+### Adaptive level generation
 
-- **Auto-commit after every file change.** After creating or modifying any file in `projects/` (notes, progress.json), immediately run `./scripts/git-sync.sh` with a descriptive message. Every single time — changes should appear on GitHub immediately.
-- Commit message format examples:
-  - `notes: create threading-basics for python-concurrency`
-  - `quiz: module-1-level-2 score 7.3/10`
-  - `progress: update python-concurrency`
-
-### Dev mode git rules
-
-- Commit after each meaningful change, but **do not auto-push** — let the user decide.
-- **After every commit to `main`, automatically rebase `learning` onto `main`** so the learning branch always has the latest system files. Steps:
-  1. `git checkout learning`
-  2. `git rebase main`
-  3. `git checkout main` (return to dev branch)
-  4. Inform the user that `learning` was rebased. Remind them to force-push both branches when ready.
-- Use `./scripts/git-sync.sh` for quick commits, or commit manually for more control.
+When the next level doesn't exist, shape it from: (1) weak concepts from the previous level carried forward, (2) user feedback from the feedback gate, (3) natural topic progression. Append to `curriculum.md` with a `<!-- Shaped by: ... -->` comment and update `progress.json`.
 
 ---
 
 ## Dev Mode — Guidelines
 
-### What you can do
+### Scope
 
-- Create, modify, delete files in `templates/`, `rubrics/`, `scripts/`, root-level files
-- Add new features to the system (new templates, new commands, automation scripts)
-- Refactor existing templates and rubrics
-- Update this CLAUDE.md
-- Write and run tests or validation scripts
-- Set up git hooks, CI, or any tooling
+- **Can modify:** `templates/`, `rubrics/`, `scripts/`, `.claude/commands/`, `CLAUDE.md`, `README.md`, `USER.md`
+- **Never touch:** `projects/`, `board/`, `tasks/`, `epics/`, `wiki/`, `raw/`, `memory/` — that's personal data.
 
-### What you should not do
+### Principles
 
-- Modify files in `projects/` — that's user learning data
-- Break backward compatibility with existing progress.json schemas without migration
-
-### Development principles
-
-- **Keep CLAUDE.md as a map**, not an encyclopedia. Point to files, don't inline everything.
-- **Templates define structure**, rubrics define quality. Keep them separate.
-- **Test changes** by running a quick simulated interaction before committing.
-- **Document changes** — update README.md when adding features.
-- **Commit often** with clear messages: `feat: add spaced repetition tracking`, `fix: quiz grading rubric edge case`
-
-### Adding new features
-
-When adding a new capability:
-
-1. Create/update the template in `templates/`
-2. Create/update any rubric in `rubrics/`
-3. Add the command documentation to the Learn Mode section above
-4. Update `progress.json` schema if needed (and note the migration)
-5. Update README.md
+- **CLAUDE.md is a map**, not an encyclopedia. Point to files.
+- **Templates define structure, rubrics define quality.** Keep them separate.
+- **Don't break `progress.json` schema** without a migration.
+- **Commit after each meaningful change.** Do NOT auto-push — let the user decide.
+- **After committing to `main`, rebase `learning` onto `main`:** `git checkout learning && git rebase main && git checkout main`. Tell the user to force-push when ready.
+- **Update README.md** when adding features.
 
 ---
 
-## Rules (both modes)
+## Global Rules
 
-- **Read the relevant template/rubric before generating content.** Every time. Don't rely on cached knowledge.
-- **One quiz question at a time.** Never dump all questions at once.
-- **Match the user's language.** If they write in Russian, respond and generate in Russian.
-- **File names use kebab-case.** e.g., `python-concurrency`, `basic-data-structures`
-- **Update progress.json after every meaningful action** in learn mode.
-- **Auto-commit in learn mode.** After every file creation or modification in `projects/`, run `./scripts/git-sync.sh`. See Git Workflow section.
-- **Check your branch.** Learn mode → `learning`. Dev mode → `main`. Switch if wrong.
-- **When unsure what the user wants**, check `progress.json` and suggest the next logical step.
+1. **Read the relevant template/rubric before generating.** Every time. No cached knowledge.
+2. **One quiz question at a time.** Never batch.
+3. **Match the user's language.** Russian in → Russian out.
+4. **Kebab-case filenames** (`python-concurrency`, not `PythonConcurrency`).
+5. **Auto-commit in use mode** after every file write in `projects/`, `board/`, `tasks/`, `epics/`, `wiki/`, `raw/`, `memory/`. Run `./scripts/git-sync.sh` with a descriptive message.
+6. **Check your branch.** Use → `learning`. Dev → `main`.
+7. **Task/epic IDs are sequential** — read `board/counter.json`, increment, write back before creating the file.
+8. **Wiki uses Obsidian `[[wiki-links]]`** for cross-references.
+9. **Link across layers.** Tasks link to wiki pages and learning projects. Notes link to wiki pages. The wiki is the shared knowledge layer.
+10. **When unsure what the user wants**, check `progress.json` or `board/index.md` and suggest the next step.

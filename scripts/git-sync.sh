@@ -40,7 +40,23 @@ else
         MSG="${MSG:+$MSG, }curriculum: $project" ;;
       projects/*)
         MSG="${MSG:+$MSG, }projects: update $file" ;;
-      templates/*|rubrics/*|scripts/*|CLAUDE.md|README.md)
+      tasks/NK-*.md)
+        id=$(basename "$file" .md)
+        MSG="${MSG:+$MSG, }task: $id" ;;
+      epics/EP-*.md)
+        id=$(basename "$file" .md)
+        MSG="${MSG:+$MSG, }epic: $id" ;;
+      board/index.md|board/counter.json|board/log.md)
+        MSG="${MSG:+$MSG, }board: $(basename "$file")" ;;
+      epics/index.md)
+        MSG="${MSG:+$MSG, }epics: index" ;;
+      wiki/*)
+        MSG="${MSG:+$MSG, }wiki: $file" ;;
+      raw/*)
+        MSG="${MSG:+$MSG, }raw: $file" ;;
+      memory/*)
+        MSG="${MSG:+$MSG, }memory: $file" ;;
+      templates/*|rubrics/*|scripts/*|.claude/commands/*|CLAUDE.md|README.md|USER.md)
         MSG="${MSG:+$MSG, }dev: update $file" ;;
       *)
         MSG="${MSG:+$MSG, }update $file" ;;
