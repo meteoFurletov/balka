@@ -83,6 +83,13 @@ Valid task statuses: `idea` → `todo` → `in-progress` → `done`.
 
 Task and epic IDs come from `board/counter.json`. Always read, increment, write back.
 
+### Research & wiki
+
+- **`/research <topic> for NK-<N>`** or "research <topic> for NK-<N>" — see `.claude/commands/research.md`. Read `rubrics/research-quality.md` first.
+- **`/wiki-ingest <path>`** or "ingest <path>" — see `.claude/commands/wiki-ingest.md`. Summarizes a document in `raw/` into `wiki/sources/` and cross-links it.
+
+The **wiki is the shared knowledge layer**. Research enriches it; notes link into it; tasks link to it. See [Wiki Conventions](#wiki-conventions) below.
+
 ### Sync
 
 - **"Export" / "Push" / "Save"** — run `./scripts/git-sync.sh`.
@@ -112,6 +119,39 @@ A continuous one-at-a-time conversation — no batches, no saved files.
 ### Adaptive level generation
 
 When the next level doesn't exist, shape it from: (1) weak concepts from the previous level carried forward, (2) user feedback from the feedback gate, (3) natural topic progression. Append to `curriculum.md` with a `<!-- Shaped by: ... -->` comment and update `progress.json`.
+
+---
+
+## Wiki Conventions
+
+The wiki under `wiki/` is a compounding knowledge layer shared by tasks, notes, and research. Pages are grouped by category:
+
+- `wiki/concepts/` — ideas, frameworks, mental models
+- `wiki/entities/` — specific tools, people, products, companies
+- `wiki/sources/` — summaries of articles, papers, videos, books (the original lives in `raw/`)
+- `wiki/comparisons/` — analysis pages comparing two or more things
+
+### Linking
+
+- **Within the wiki:** use Obsidian-style `[[category/slug]]` links (e.g., `[[concepts/event-loop]]`).
+- **From a task to a wiki page:** add the slug to the task's `linked_wiki` frontmatter array and reference it in the task body with `[[concepts/event-loop]]`.
+- **From a note to a wiki page:** reference it in the note's `## Connections` section.
+- **From a wiki page back to a task:** add `[[NK-<N>]]` to the page's `## Linked Tasks` section and the task's id to `linked_tasks` frontmatter.
+- **From a wiki page back to a note:** add the note path to `linked_notes` frontmatter and the page's `## Linked Notes` section.
+
+Cross-linking is bidirectional by convention. When `/research` or `/wiki-ingest` creates or updates a wiki page tied to a task, it writes both directions.
+
+### When to create a page
+
+Create a page when the knowledge has **reusable value beyond one task**. Don't create pages for task-specific trivia, duplicates, or unverified rumors. See `rubrics/research-quality.md` for the full criteria.
+
+### Ingest → Query → Lint
+
+Three operations shape the wiki over time:
+
+1. **Ingest** (via `/wiki-ingest`) — pull a source from `raw/` into `wiki/sources/`, cross-link with concepts.
+2. **Query** (conversational) — when asked a knowledge question, read `wiki/index.md`, load relevant pages, synthesize an answer. Optionally file the answer back as a new page.
+3. **Lint** (part of `/review`, Phase 3) — weekly check for orphan pages, stale dates, missing cross-references, and concepts mentioned without pages.
 
 ---
 
