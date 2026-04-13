@@ -5,6 +5,7 @@ When generating a note, follow this structure. Notes should be comprehensive eno
 ## File Naming
 
 Notes are depth-aware. Name files as `L<level>-<topic>.md`:
+
 - `L1-threading.md` — Level 1 fundamentals
 - `L3-threading.md` — Level 3 advanced depth
 
@@ -63,18 +64,19 @@ What do people get wrong about this topic? What are the misconceptions?
 
 Each level targets a different depth:
 
-| Level | Depth | Focus |
-|-------|-------|-------|
-| L1 | Fundamentals | What is X, how does it work, basic usage |
-| L2 | Intermediate | How X interacts with Y, comparisons, patterns |
-| L3 | Advanced | Real-world application, failure modes, edge cases |
-| L4 | Expert | Architecture decisions, tradeoffs, synthesis |
+| Level | Depth        | Focus                                             |
+|-------|--------------|---------------------------------------------------|
+| L1    | Fundamentals | What is X, how does it work, basic usage          |
+| L2    | Intermediate | How X interacts with Y, comparisons, patterns     |
+| L3    | Advanced     | Real-world application, failure modes, edge cases |
+| L4    | Expert       | Architecture decisions, tradeoffs, synthesis      |
 
 A Level 1 note should be accessible to beginners. A Level 3 note can assume the reader has L1 and L2 knowledge.
 
 ## Connection Types
 
 Notes connect in three dimensions:
+
 - **Horizontal** — same level, different topic (e.g., `L2-threading.md` ↔ `L2-synchronization.md`)
 - **Vertical** — same topic, different depth (e.g., `L1-threading.md` → `L3-threading.md`)
 - **Wiki** — shared knowledge pages under `wiki/` (e.g., `[[concepts/event-loop]]`)

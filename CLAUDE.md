@@ -4,12 +4,12 @@ A file-based system powered by Claude Code. Two modes, one repo.
 
 ## Modes
 
-| Mode | Role | Activators | Branch |
-|------|------|-----------|--------|
-| **use** (default) | AI tutor + task manager + researcher | "learn", "study", "quiz me", "start a project", "add task", "move", "research", "board", "review" | `learning` |
-| **dev** | System developer | "dev", "dev mode", "let's work on the system" | `main` |
+| Mode | Role | Activators |
+| ---- | ---- | ---------- |
+| **use** (default) | AI tutor + task manager + researcher | "learn", "study", "quiz me", "start a project", "add task", "move", "research", "board", "review" |
+| **dev** | System developer | "dev", "dev mode", "let's work on the system" |
 
-**Always confirm mode if ambiguous.** Never cross-write between mode scopes. Switch branches before acting if you're on the wrong one.
+**Always confirm mode if ambiguous.**
 
 ---
 
@@ -64,19 +64,19 @@ memory/                ← Curated context (use: read/write)
 
 ### Learning
 
-- **"Start a new project on <topic>"** — ask experience level and module count (default 5). Create `projects/<slug>/`, generate curriculum from `templates/curriculum.md`, init `progress.json`.
-- **"Generate notes for <topic/module>"** — read project's `curriculum.md`, `templates/note.md`, and `rubrics/note-quality.md`. **Before writing**, skim `wiki/index.md` for pages relevant to the topic and read any that match — notes should build on the wiki, not duplicate it. Save to `projects/<slug>/notes/L<level>-<topic>.md`. Include horizontal and vertical connections in `## Connections`, plus a separate `**Wiki:**` line listing any `[[category/slug]]` references used. After writing, append the note path to each referenced wiki page's `linked_notes` frontmatter and `## Linked Notes` section.
-- **"Quiz me on <module/level>"** — see [Quiz Flow](#quiz-flow) below.
-- **"Flashcards for <topic>"** — generate on the fly from the relevant note. Conversation only, no files saved.
+- **"Start a new project on `<topic>`"** — ask experience level and module count (default 5). Create `projects/<slug>/`, generate curriculum from `templates/curriculum.md`, init `progress.json`.
+- **"Generate notes for `<topic/module>`"** — read project's `curriculum.md`, `templates/note.md`, and `rubrics/note-quality.md`. **Before writing**, skim `wiki/index.md` for pages relevant to the topic and read any that match — notes should build on the wiki, not duplicate it. Save to `projects/<slug>/notes/L<level>-<topic>.md`. Include horizontal and vertical connections in `## Connections`, plus a separate `**Wiki:**` line listing any `[[category/slug]]` references used. After writing, append the note path to each referenced wiki page's `linked_notes` frontmatter and `## Linked Notes` section.
+- **"Quiz me on `<module/level>`"** — see [Quiz Flow](#quiz-flow) below.
+- **"Flashcards for `<topic>`"** — generate on the fly from the relevant note. Conversation only, no files saved.
 - **"Show my progress"** — read `progress.json`, summarize modules, scores, weak areas.
 
 ### Task management
 
 All task and epic commands live in `.claude/commands/`. Read the command file before executing.
 
-- **`/add-task`** or "add task: <title>" — see `.claude/commands/add-task.md`
-- **`/move-task`** or "move NK-XXX to <status>" — see `.claude/commands/move-task.md`
-- **`/add-epic`** or "add epic: <title>" — see `.claude/commands/add-epic.md`
+- **`/add-task`** or "add task: `<title>`" — see `.claude/commands/add-task.md`
+- **`/move-task`** or "move NK-XXX to `<status>`" — see `.claude/commands/move-task.md`
+- **`/add-epic`** or "add epic: `<title>`" — see `.claude/commands/add-epic.md`
 - **`/link-task`** or "link NK-XXX to EP-Y" — see `.claude/commands/link-task.md`
 
 Valid task statuses: `idea` → `todo` → `in-progress` → `done`.
@@ -85,8 +85,8 @@ Task and epic IDs come from `board/counter.json`. Always read, increment, write 
 
 ### Research & wiki
 
-- **`/research <topic> for NK-<N>`** or "research <topic> for NK-<N>" — see `.claude/commands/research.md`. Read `rubrics/research-quality.md` first.
-- **`/wiki-ingest <path>`** or "ingest <path>" — see `.claude/commands/wiki-ingest.md`. Summarizes a document in `raw/` into `wiki/sources/` and cross-links it.
+- **`/research <topic> for NK-<N>`** or "research `<topic>` for `NK-<N>`" — see `.claude/commands/research.md`. Read `rubrics/research-quality.md` first.
+- **`/wiki-ingest <path>`** or "ingest `<path>`" — see `.claude/commands/wiki-ingest.md`. Summarizes a document in `raw/` into `wiki/sources/` and cross-links it.
 
 The **wiki is the shared knowledge layer**. Research enriches it; notes link into it; tasks link to it. See [Wiki Conventions](#wiki-conventions) below.
 
@@ -97,7 +97,6 @@ The **wiki is the shared knowledge layer**. Research enriches it; notes link int
 ### Sync
 
 - **"Export" / "Push" / "Save"** — run `./scripts/git-sync.sh`.
-- **"Sync from dev" / "Update system"** — on `learning`, `git fetch origin && git rebase main`, then `git push --force-with-lease`.
 
 ---
 
@@ -140,7 +139,7 @@ The wiki under `wiki/` is a compounding knowledge layer shared by tasks, notes, 
 - **Within the wiki:** use Obsidian-style `[[category/slug]]` links (e.g., `[[concepts/event-loop]]`).
 - **From a task to a wiki page:** add the slug to the task's `linked_wiki` frontmatter array and reference it in the task body with `[[concepts/event-loop]]`.
 - **From a note to a wiki page:** reference it in the note's `## Connections` section.
-- **From a wiki page back to a task:** add `[[NK-<N>]]` to the page's `## Linked Tasks` section and the task's id to `linked_tasks` frontmatter.
+- **From a wiki page back to a task:** add `[[NK-N]]` to the page's `## Linked Tasks` section and the task's id to `linked_tasks` frontmatter.
 - **From a wiki page back to a note:** add the note path to `linked_notes` frontmatter and the page's `## Linked Notes` section.
 
 Cross-linking is bidirectional by convention. When `/research` or `/wiki-ingest` creates or updates a wiki page tied to a task, it writes both directions.
@@ -172,7 +171,6 @@ Three operations shape the wiki over time:
 - **Templates define structure, rubrics define quality.** Keep them separate.
 - **Don't break `progress.json` schema** without a migration.
 - **Commit after each meaningful change.** Do NOT auto-push — let the user decide.
-- **After committing to `main`, rebase `learning` onto `main`:** `git checkout learning && git rebase main && git checkout main`. Tell the user to force-push when ready.
 - **Update README.md** when adding features.
 
 ---
@@ -184,8 +182,7 @@ Three operations shape the wiki over time:
 3. **Match the user's language.** Russian in → Russian out.
 4. **Kebab-case filenames** (`python-concurrency`, not `PythonConcurrency`).
 5. **Auto-commit in use mode** after every file write in `projects/`, `board/`, `tasks/`, `epics/`, `wiki/`, `raw/`, `memory/`. Run `./scripts/git-sync.sh` with a descriptive message.
-6. **Check your branch.** Use → `learning`. Dev → `main`.
-7. **Task/epic IDs are sequential** — read `board/counter.json`, increment, write back before creating the file.
-8. **Wiki uses Obsidian `[[wiki-links]]`** for cross-references.
-9. **Link across layers.** Tasks link to wiki pages and learning projects. Notes link to wiki pages. The wiki is the shared knowledge layer.
-10. **When unsure what the user wants**, check `progress.json` or `board/index.md` and suggest the next step.
+6. **Task/epic IDs are sequential** — read `board/counter.json`, increment, write back before creating the file.
+7. **Wiki uses Obsidian `[[wiki-links]]`** for cross-references.
+8. **Link across layers.** Tasks link to wiki pages and learning projects. Notes link to wiki pages. The wiki is the shared knowledge layer.
+9. **When unsure what the user wants**, check `progress.json` or `board/index.md` and suggest the next step.

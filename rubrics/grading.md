@@ -30,14 +30,17 @@ Use this rubric to score quiz answers on a 0-10 scale. Be consistent and fair.
 ## Score Aggregation
 
 ### Concept Score
+
 Each concept has an array of scores. The **concept average** is the arithmetic mean of all scores for that concept, rounded to one decimal place.
 
 ### Level Completion Score
+
 A level is complete when all 7 concepts have at least one score. The **overall level score** is the arithmetic mean of all concept averages, rounded to one decimal place.
 
 ### Level Summary
 
 When a level is complete, provide a brief reflective summary:
+
 - Note which concepts the user was strongest on and where they struggled
 - Offer a gentle suggestion for what to focus on next — revisit weak areas, move to the next level, or both
 - Keep the tone encouraging and non-judgmental — no pass/fail labels, no thresholds
