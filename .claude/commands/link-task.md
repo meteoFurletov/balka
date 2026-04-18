@@ -12,7 +12,7 @@ Attach a task to an epic, or detach it. Usage:
 
 ## Steps (link)
 
-1. **Confirm mode and branch.** Must be `use` mode on `learning`.
+1. **Confirm mode.** Must be `use` mode.
 2. **Read both files:** `tasks/NK-<N>.md` and `epics/EP-<M>.md`. If either is missing, report and stop.
 3. **Update the task's frontmatter:**
    - `epic: EP-<M>`

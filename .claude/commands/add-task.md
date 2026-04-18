@@ -12,7 +12,7 @@ Create a new task card. Usage:
 
 ## Steps
 
-1. **Confirm mode and branch.** Must be `use` mode on the `learning` branch. Switch if not.
+1. **Confirm mode.** Must be `use` mode.
 2. **Parse the title.** Keep it short and imperative. Ask a clarifying question only if the title is missing or unclear.
 3. **Read `board/counter.json`** to get `next_task_id`. Let `N` = that value.
 4. **Increment and write back** `board/counter.json` with `next_task_id: N + 1`.

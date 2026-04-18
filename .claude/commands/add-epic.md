@@ -11,7 +11,7 @@ Create a new epic. Usage:
 
 ## Steps
 
-1. **Confirm mode and branch.** Must be `use` mode on `learning`.
+1. **Confirm mode.** Must be `use` mode.
 2. **Parse the title.** Ask for a title if missing. Optionally ask for a one-sentence goal if the user hasn't provided one.
 3. **Read `board/counter.json`** to get `next_epic_id`. Let `N` = that value.
 4. **Increment and write back** `board/counter.json` with `next_epic_id: N + 1`.

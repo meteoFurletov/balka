@@ -11,7 +11,7 @@ Run a weekly review that unifies learning progress, task movement, research, and
 
 ## Prerequisites
 
-- **Mode/branch:** `use` mode on `learning`.
+- **Mode:** `use` mode.
 - **Read `rubrics/grading.md`** if commenting on quiz scores.
 - **Run `scripts/lint.sh`** first and include its output in the review.
 

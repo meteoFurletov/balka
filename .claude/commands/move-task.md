@@ -13,7 +13,7 @@ Valid statuses: `idea`, `todo`, `in-progress`, `done`.
 
 ## Steps
 
-1. **Confirm mode and branch.** Must be `use` mode on `learning`.
+1. **Confirm mode.** Must be `use` mode.
 2. **Read `tasks/NK-<N>.md`.** If it doesn't exist, report the error and stop.
 3. **Validate the target status.** Must be one of the four valid values. Reject anything else.
 4. **Update the task file's frontmatter:**

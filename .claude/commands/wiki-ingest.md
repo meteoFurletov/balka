@@ -12,7 +12,7 @@ Summarize a source document into `wiki/sources/` and cross-link it with related 
 
 ## Prerequisites
 
-- **Mode/branch:** `use` mode on `learning`.
+- **Mode:** `use` mode.
 - **Read `rubrics/research-quality.md`.** Source summaries follow the same honesty standards.
 - **Read `templates/wiki-page.md`.** Source pages follow the same template with `category: sources`.
 - **raw/ is immutable.** Never edit files in `raw/`. Only read and cite them.

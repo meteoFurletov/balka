@@ -12,7 +12,7 @@ Do focused research on a topic, write findings into a task file, and optionally 
 
 ## Prerequisites
 
-- **Mode/branch:** `use` mode on `learning`.
+- **Mode:** `use` mode.
 - **Read `rubrics/research-quality.md` first.** Every time. Follow it.
 - **Read `templates/wiki-page.md`** if the research may produce a new wiki page.
 

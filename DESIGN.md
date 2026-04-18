@@ -30,9 +30,9 @@ Templates, rubrics, commands, and scripts are a clean piece of OSS. Personal con
 
 The split is enforced by convention, not tooling: the harness lives in `templates/`, `rubrics/`, `scripts/`, `.claude/commands/`, `CLAUDE.md`, `README.md`, `DESIGN.md`. Everything else is fork-local. `.gitkeep` files keep the empty directories in upstream so forks start with the right scaffolding.
 
-### Two branches, not two repos
+### Fork, not a second repo or a second branch
 
-`main` holds the harness; `learning` holds personal data plus the harness (rebased from main). One repo, two branches. Rationale: a fork is already a fork. Adding a second repo doubles the maintenance cost. Branches are cheap and rebasing `learning` onto `main` pulls harness updates cleanly.
+The harness lives upstream; personal data lives in your fork of the upstream repo on its own `main`. One fork, one branch. Earlier drafts used a two-branch model (`main` for harness, `learning` for personal data rebased on it), but rebasing a long-lived branch on every upstream pull was noisy and error-prone. A fork is the natural unit: clone once, pull from `upstream` when the harness improves, commit personal data on your own `main`.
 
 ### CLAUDE.md as router, not encyclopedia
 

@@ -35,8 +35,8 @@ Everything is plain markdown files and JSON. Claude Code reads `CLAUDE.md` to un
 
 Two modes:
 
-- **use** (default, `learning` branch) — you learn, manage tasks, research. Auto-commits on every file write.
-- **dev** (`main` branch) — you improve the system itself: templates, rubrics, commands, scripts.
+- **use** (default) — you learn, manage tasks, research. Auto-commits on every file write.
+- **dev** — you improve the system itself: templates, rubrics, commands, scripts.
 
 ## What it does
 
@@ -97,14 +97,9 @@ git fetch upstream
 git checkout main
 git merge upstream/main       # or rebase, if you haven't diverged
 git push origin main
-
-# Then rebase your learning branch onto the updated main
-git checkout learning
-git rebase main
-git push --force-with-lease
 ```
 
-Your personal data (`projects/`, `board/`, `tasks/`, etc.) lives on `learning` and is never touched by harness updates to `main`.
+Your personal data (`projects/`, `board/`, `tasks/`, etc.) lives only in your fork and is never part of the upstream harness.
 
 ## Contributing
 
