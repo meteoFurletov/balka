@@ -76,7 +76,9 @@ Design constraints:
 - **Idempotent.** Re-running on the same day is a no-op. The scheduler trusts its past decisions.
 - **State-aware, not rule-based.** The scheduler reads board, progress, memory, and picks the most useful action given current state — it doesn't cycle through a fixed pattern.
 - **Fails gracefully.** If Telegram is down, the task still lands on the board. If both fail, the scheduler logs and exits 0 so cron doesn't alarm.
-- **Headless-first.** Designed to run via `claude -p "/schedule"` without a terminal. Interactive use is a bonus.
+- **Headless-first, but in-session.** `/schedule` is non-interactive — no clarifying questions, deterministic writes — so it can fire from an automated trigger. It runs *inside* a live Claude Code session, not as a standalone `claude -p` process, because two-way Telegram needs one long-lived long-poll connection.
+
+Transport is the official Telegram plugin, not a bespoke bot. One token, one long-poll, one always-on session — inbound DMs and outbound `/schedule` pings share the same runtime. The repo is deliberately unaware of Telegram credentials: token lives in `~/.claude/channels/telegram/.env`, chat IDs in `~/.claude/channels/telegram/access.json`. Cadence is driven by a remote-agent trigger (`CronCreate` via the `schedule` skill) that invokes `/schedule` on a daily cron from within the same session. Inbound messages are routed by `CLAUDE.md` exactly like typed input — Telegram is a transport, not a separate mode.
 
 ### Lint exits 0
 
@@ -86,7 +88,7 @@ Design constraints:
 
 - **A dedicated web UI.** Claude Code + any markdown editor is enough. A UI would fragment the stack.
 - **A database.** SQLite would be faster for queries, but then the files stop being the source of truth and the whole tool-agnostic story falls apart.
-- **A task-scheduling engine inside the repo.** `/schedule` is a single-shot picker invoked by an external cron/launchd job — the repo doesn't manage its own timers, daemons, or reminder queues. The weekly `/review` remains the reflective cadence.
+- **A task-scheduling engine inside the repo.** `/schedule` is a single-shot picker invoked by a remote-agent trigger (`CronCreate`) from inside the always-on session — the repo itself doesn't manage timers, daemons, or reminder queues. The weekly `/review` remains the reflective cadence.
 - **A plugin system.** Slash commands in `.claude/commands/` are the extension point. If you need more, edit the command file or add a new one.
 - **Multi-tenant memory.** `memory/MEMORY.md` is one user, one file. No profiles.
 - **Auto-generating wiki pages from every research pass.** Research should be selective about what gets promoted. Automatic promotion floods the wiki with task-specific trivia.

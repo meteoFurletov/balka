@@ -32,7 +32,6 @@ rubrics/               ← Quality standards (dev: editable, use: read-only)
 scripts/               ← Automation
   git-sync.sh          ← Auto-commit and push
   lint.sh              ← Health check
-  notify.sh            ← Telegram notification helper (used by /schedule)
 .claude/commands/      ← Slash command definitions
 projects/              ← Learning content (use: read/write)
   <slug>/
@@ -98,7 +97,11 @@ The **wiki is the shared knowledge layer**. Research enriches it; notes link int
 
 ### Daily scheduling
 
-- **`/schedule`** or "run today's schedule" — see `.claude/commands/schedule.md`. Analyzes current state and generates one focused task for today. Designed to run headlessly via `claude -p "/schedule"` on a daily cron or launchd job. Writes to `memory/daily/<date>-scheduled.md` and notifies via Telegram if configured.
+- **`/schedule`** or "run today's schedule" — see `.claude/commands/schedule.md`. Analyzes current state and generates one focused task for today. Fires daily from a remote-agent trigger (`CronCreate` via the `schedule` skill) inside a live session with the Telegram channel attached. Writes to `memory/daily/<date>-scheduled.md` and DMs via the plugin's `reply` tool.
+
+### Telegram channel
+
+Messages from Telegram arrive as ordinary user input in the live session — the official Telegram plugin forwards each DM as if you'd typed it yourself. Route them by matching the same activators listed elsewhere in this file (`add task: ...`, `/move-task NK-X done`, `Quiz me on ...`, etc.). Telegram is a transport, not a separate mode. There is no curated subset of commands — if it works in the terminal, it works from your phone.
 
 ### Sync
 

@@ -4,18 +4,19 @@ description: Pick one focused action for today based on current state and notify
 
 # /schedule
 
-Daily single-shot scheduler. Analyze the system state, pick **one** concrete action for the day, land it on the board, and send a Telegram notification. Designed to run headlessly via `claude -p "/schedule"` from a daily cron or launchd job; also works interactively.
+Daily single-shot scheduler. Analyze the system state, pick **one** concrete action for the day, land it on the board, and ping the user via Telegram. Designed to fire from a daily remote-agent trigger (`CronCreate`) running inside a Claude Code session that has the Telegram channel attached; also works interactively.
 
 Usage:
 
-- `/schedule`
-- `claude -p "/schedule" --permission-mode acceptEdits`
+- `/schedule` (typed inside the live session)
+- Fired automatically by the daily trigger (see `README.md` → Daily scheduling)
 
 ## Prerequisites
 
 - **Mode:** `use` mode.
 - **Branch:** the active branch (typically `main`). Do not switch branches.
 - **One task per day.** Never batch. The whole point is to defeat procrastination by surfacing a single small thing.
+- **Telegram channel:** the notification goes out via the official Telegram plugin's `reply` MCP tool. The live session is expected to have been launched with `--channels plugin:telegram@claude-plugins-official`. If the `reply` tool is not available in the current session, the notification is skipped and the daily log records `Notified: no — telegram channel not attached`. Everything else still runs.
 
 ## Idempotency
 
@@ -72,7 +73,9 @@ Do not re-pick, do not re-notify, do not re-commit. The user can delete that fil
    - **Notified:** <yes | no — reason if no>
    ```
 
-6. **Send Telegram notification** via `scripts/notify.sh`:
+6. **Send Telegram notification** via the plugin's `reply` MCP tool.
+
+   Message body:
 
    ```text
    🌅 Today's focus
@@ -80,7 +83,14 @@ Do not re-pick, do not re-notify, do not re-commit. The user can delete that fil
    <one-sentence why>
    ```
 
-   Invocation: `./scripts/notify.sh "$(cat <<'EOF' ... EOF)"`. If the script is missing, or it warns about missing `TELEGRAM_BOT_TOKEN`/`TELEGRAM_CHAT_ID`, log `Notified: no — <reason>` in the daily log and continue. **Notification failure must never block** any other step. The notify script itself exits 0 on failure.
+   Procedure:
+
+   1. Read `~/.claude/channels/telegram/access.json`. Take `allowedUsers[0]` as the `chat_id`.
+      - If the file is missing or `allowedUsers` is empty/absent: log `Notified: no — no allowlisted user` in the daily log and skip to step 7.
+   2. If the `reply` tool (exposed as an MCP tool by the `telegram` server in the live session) is not available: log `Notified: no — telegram channel not attached` and skip to step 7.
+   3. Otherwise call `reply` with `{ chat_id: <id>, text: <message body> }`. On any error, log `Notified: no — <short reason>` and continue.
+
+   Notification failure must never block step 7 or step 8. The scheduler always commits and logs even if the message doesn't go out.
 
 7. **Append to `board/log.md`:**
 
@@ -104,5 +114,5 @@ Do not re-pick, do not re-notify, do not re-commit. The user can delete that fil
 - **Single-shot.** Never create more than one task per run, never pick a second priority "while you're at it".
 - **Stuck-task carryover.** If yesterday's pick was a stuck task and the same task is still the only candidate today, it's fine to surface it again — but check first.
 - **Don't manage the user's reaction.** Whether the user moves, completes, or ignores the task is their decision. The scheduler has no follow-up state machine.
-- **Headless-safe.** All file writes use deterministic content; no clarifying questions. The scheduler runs without a human at the prompt.
+- **Non-interactive.** All file writes use deterministic content; no clarifying questions. The scheduler runs without a human at the prompt — safe to fire from a cron trigger.
 - **Fail soft.** A missing `progress.json`, empty board, or absent `memory/` is not an error — fall through the priority list to case 6.
