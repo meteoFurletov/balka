@@ -19,6 +19,7 @@ created: <YYYY-MM-DD>
 updated: <YYYY-MM-DD>
 linked_wiki: []
 linked_project: null
+scheduled: false
 ---
 
 # NK-<N>: <Title>
@@ -46,6 +47,7 @@ Free-form decisions, context, open questions. Append as work progresses.
 - **created** / **updated** — ISO date. `updated` changes on every edit.
 - **linked_wiki** — array of wiki page slugs this task references (e.g., `[concepts/event-loop]`).
 - **linked_project** — slug of a learning project (e.g., `python-concurrency`) or `null`.
+- **scheduled** — `true` if the task was created by `/schedule`, `false` (default) for user-created tasks. Lets `/review` and lint distinguish auto-generated tasks from intentional ones.
 
 ## Status Flow
 

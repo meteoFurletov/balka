@@ -66,6 +66,18 @@ In `use` mode, every file write runs `scripts/git-sync.sh`. The user shouldn't h
 
 Without `/review`, the system is a pile of files. The review is what turns the pile into a habit: it forces honesty about what moved and what's stuck, it surfaces connections between learning and tasks, and it runs lint so the system doesn't rot. Skipping the review is the failure mode to watch.
 
+### The scheduler is a push, not a pull
+
+Without scheduling, the system waits for the user to open Claude Code and decide what to do. Procrastination wins. The `/schedule` command inverts this: every morning, Claude analyzes state and picks one concrete action, writes it to the board, and pings Telegram. The user wakes up to "today's focus: quiz on GIL" instead of a blank prompt.
+
+Design constraints:
+
+- **One task per day, not a bundle.** Procrastination grows with scope. A single five-minute task is harder to avoid than a list.
+- **Idempotent.** Re-running on the same day is a no-op. The scheduler trusts its past decisions.
+- **State-aware, not rule-based.** The scheduler reads board, progress, memory, and picks the most useful action given current state — it doesn't cycle through a fixed pattern.
+- **Fails gracefully.** If Telegram is down, the task still lands on the board. If both fail, the scheduler logs and exits 0 so cron doesn't alarm.
+- **Headless-first.** Designed to run via `claude -p "/schedule"` without a terminal. Interactive use is a bonus.
+
 ### Lint exits 0
 
 `scripts/lint.sh` is informational, not a gate. Warnings are for the user; the script never blocks anything. Gating on lint would create pressure to suppress warnings rather than act on them.
@@ -74,7 +86,7 @@ Without `/review`, the system is a pile of files. The review is what turns the p
 
 - **A dedicated web UI.** Claude Code + any markdown editor is enough. A UI would fragment the stack.
 - **A database.** SQLite would be faster for queries, but then the files stop being the source of truth and the whole tool-agnostic story falls apart.
-- **A task-scheduling engine.** No cron, no reminders. The weekly review is the cadence.
+- **A task-scheduling engine inside the repo.** `/schedule` is a single-shot picker invoked by an external cron/launchd job — the repo doesn't manage its own timers, daemons, or reminder queues. The weekly `/review` remains the reflective cadence.
 - **A plugin system.** Slash commands in `.claude/commands/` are the extension point. If you need more, edit the command file or add a new one.
 - **Multi-tenant memory.** `memory/MEMORY.md` is one user, one file. No profiles.
 - **Auto-generating wiki pages from every research pass.** Research should be selective about what gets promoted. Automatic promotion floods the wiki with task-specific trivia.

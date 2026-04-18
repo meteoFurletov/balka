@@ -178,7 +178,44 @@ if [ "$broken" -eq 0 ]; then
   ok "No broken wiki links found"
 fi
 
-# ── 5. Summary ───────────────────────────────────────────────────────
+# ── 5. Scheduler drift ───────────────────────────────────────────────
+hdr "Scheduler drift"
+have_active_projects=0
+if ls projects/*/progress.json >/dev/null 2>&1; then
+  have_active_projects=1
+fi
+
+have_active_board=0
+if [ -d tasks ] && ls tasks/NK-*.md >/dev/null 2>&1; then
+  for f in tasks/NK-*.md; do
+    [ -f "$f" ] || continue
+    s=$(fm_field "$f" "status")
+    case "$s" in todo|in-progress) have_active_board=1; break ;; esac
+  done
+fi
+
+if [ "$have_active_projects" -eq 1 ] || [ "$have_active_board" -eq 1 ]; then
+  recent=0
+  if [ -d memory/daily ]; then
+    for n in 0 1 2; do
+      d=$(date -d "$n days ago" +%Y-%m-%d 2>/dev/null || echo "")
+      [ -z "$d" ] && continue
+      if [ -f "memory/daily/${d}-scheduled.md" ]; then
+        recent=1
+        break
+      fi
+    done
+  fi
+  if [ "$recent" -eq 0 ]; then
+    warn "SCHEDULER DRIFT: no memory/daily/*-scheduled.md in the last 3 days — is your cron/launchd job running?"
+  else
+    ok "Scheduler ran within the last 3 days"
+  fi
+else
+  ok "No active projects or board — skipping scheduler drift check"
+fi
+
+# ── 6. Summary ───────────────────────────────────────────────────────
 hdr "Summary"
 if [ "$WARN_COUNT" -eq 0 ]; then
   printf "${GREEN}All checks passed.${NC}\n"

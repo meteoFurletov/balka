@@ -31,6 +31,8 @@ rubrics/               ← Quality standards (dev: editable, use: read-only)
   note-quality.md
 scripts/               ← Automation
   git-sync.sh          ← Auto-commit and push
+  lint.sh              ← Health check
+  notify.sh            ← Telegram notification helper (used by /schedule)
 .claude/commands/      ← Slash command definitions
 projects/              ← Learning content (use: read/write)
   <slug>/
@@ -93,6 +95,10 @@ The **wiki is the shared knowledge layer**. Research enriches it; notes link int
 ### Review
 
 - **`/review`** or "weekly review" — see `.claude/commands/review.md`. Unified learn + task + wiki review over the last 7 days (or `/review 14d` for a different window). Runs `scripts/lint.sh`, saves the report to `memory/daily/<date>-review.md`, updates `memory/MEMORY.md`.
+
+### Daily scheduling
+
+- **`/schedule`** or "run today's schedule" — see `.claude/commands/schedule.md`. Analyzes current state and generates one focused task for today. Designed to run headlessly via `claude -p "/schedule"` on a daily cron or launchd job. Writes to `memory/daily/<date>-scheduled.md` and notifies via Telegram if configured.
 
 ### Sync
 
@@ -186,3 +192,4 @@ Three operations shape the wiki over time:
 7. **Wiki uses Obsidian `[[wiki-links]]`** for cross-references.
 8. **Link across layers.** Tasks link to wiki pages and learning projects. Notes link to wiki pages. The wiki is the shared knowledge layer.
 9. **When unsure what the user wants**, check `progress.json` or `board/index.md` and suggest the next step.
+10. **The scheduler is single-shot.** One task per day, idempotent on re-run. Never batch.

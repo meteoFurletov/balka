@@ -63,6 +63,12 @@ A file-based kanban. Tasks live in `tasks/NK-<N>.md`, epics in `epics/EP-<N>.md`
 
 The wiki is a compounding knowledge base. Tasks link to it, notes link to it, research enriches it. Cross-references use Obsidian-style `[[category/slug]]` links and are bidirectional by convention.
 
+### Daily scheduling
+
+- `/schedule` — pick **one** focused action for today based on current state (stuck tasks, weak quiz concepts, mid-level progress, stale ideas), land it on the board, and ping Telegram. Designed to run headlessly via `claude -p "/schedule"` from a daily cron or launchd job. Idempotent: re-running on the same day is a no-op.
+
+To enable Telegram notifications, copy `.env.example` to `.env` at the repo root and fill in `TELEGRAM_BOT_TOKEN` (from `@BotFather`) and `TELEGRAM_CHAT_ID` (from `@userinfobot`). The `.env` file is gitignored. If credentials are missing the scheduler still runs and writes the task — it just skips the notification.
+
 ### Weekly review
 
 - `/review` — unified learn + task + wiki + epic review over the last 7 days. Runs `scripts/lint.sh` to surface stuck tasks, orphan wiki pages, stale content, and broken links. Saves a dated report to `memory/daily/` and updates `memory/MEMORY.md`.
