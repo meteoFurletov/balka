@@ -69,25 +69,7 @@ The wiki is a compounding knowledge base. Tasks link to it, notes link to it, re
 
 Inbound DMs to the same bot are full-function — you can send `add task: pick up the order`, `/move-task NK-12 done`, `Quiz me on module 2`, or anything else that works in a terminal session, and the live session handles it. Telegram is a transport, not a curated subset.
 
-**Setup (one-time):**
-
-1. **Install the Telegram plugin** and pair your Telegram account with it. Follow the plugin's own README for BotFather, pairing, and access control: `~/.claude/plugins/.../telegram/0.0.6/README.md` (or `/plugin install telegram@claude-plugins-official` from inside Claude Code). The plugin keeps the bot token in `~/.claude/channels/telegram/.env` and your numeric chat ID in `~/.claude/channels/telegram/access.json`. Balka never touches those files — it only reads the chat ID at runtime.
-2. **Start a persistent session** with the channel attached. Keep it alive however you prefer (tmux, a systemd `--user` unit, `screen`, `nohup`, …):
-
-   ```bash
-   claude --channels plugin:telegram@claude-plugins-official
-   ```
-
-   This session is both your inbound listener (DMs land here) and the runtime `/schedule` fires inside.
-3. **Create the daily trigger.** From that session, ask the `schedule` skill to set it up, e.g.:
-
-   ```text
-   schedule /schedule daily at 08:00 in my balka repo
-   ```
-
-   The trigger survives session restarts and re-invokes `/schedule` each morning; the command's own idempotency check prevents double-scheduling if the trigger ever re-fires the same day.
-
-If the Telegram plugin isn't available or no user is allowlisted yet, `/schedule` still runs, still lands the task, and still commits — it just records `Notified: no — <reason>` in the daily log and moves on.
+Setup is a one-time thing — see [Telegram & Scheduler Setup](#telegram--scheduler-setup) below.
 
 ### Weekly review
 
@@ -113,6 +95,141 @@ wiki/                 → Knowledge base
 raw/                  → Source documents
 memory/               → Curated context across sessions
 ```
+
+## Telegram & Scheduler Setup
+
+One-time setup to get `/schedule` pinging you on Telegram and inbound DMs acting as a full remote control for your balka. Budget ~10 minutes, most of it in Telegram itself.
+
+### Prerequisites
+
+- [Bun](https://bun.sh) — the Telegram plugin runs on Bun. `curl -fsSL https://bun.sh/install | bash`.
+- A Telegram account.
+- This repo cloned locally and a working `claude` CLI.
+
+### 1. Create the bot on Telegram
+
+Open a chat with [@BotFather](https://t.me/BotFather) and send `/newbot`. BotFather asks for two things:
+
+- **Name** — the display name (anything, spaces allowed).
+- **Username** — a unique handle ending in `bot`, e.g. `my_balka_bot`. Becomes `t.me/my_balka_bot`.
+
+BotFather replies with a token like `123456789:AAHfiqksKZ8...`. Copy the whole thing including the leading number and colon. Treat it like a password — anyone with this token can read your inbound DMs and post as the bot.
+
+### 2. Install the Telegram plugin
+
+Start Claude Code anywhere, then:
+
+```text
+/plugin install telegram@claude-plugins-official
+/reload-plugins
+/telegram:configure 123456789:AAHfiqksKZ8...
+```
+
+`/telegram:configure` writes the token to `~/.claude/channels/telegram/.env`. You can also edit that file by hand — the plugin re-reads on the next session. The token lives *outside* this repo on purpose: balka never sees it.
+
+### 3. Start the persistent session
+
+The Telegram bot uses a long-poll connection — only one process can hold it at a time — so you want one long-running Claude Code session that handles both inbound DMs and the daily `/schedule` push. Keep it alive however suits you; pick one:
+
+**tmux (simple):**
+
+```bash
+tmux new -s balka
+cd /path/to/balka
+claude --channels plugin:telegram@claude-plugins-official
+# detach: Ctrl-b d       reattach: tmux attach -t balka
+```
+
+**systemd --user unit (auto-restart on reboot):**
+
+```ini
+# ~/.config/systemd/user/balka-telegram.service
+[Unit]
+Description=Balka Claude Code session with Telegram channel
+After=default.target
+
+[Service]
+Type=simple
+WorkingDirectory=%h/Projects/balka
+ExecStart=%h/.local/bin/claude --channels plugin:telegram@claude-plugins-official
+Restart=on-failure
+
+[Install]
+WantedBy=default.target
+```
+
+```bash
+systemctl --user daemon-reload
+systemctl --user enable --now balka-telegram
+journalctl --user -u balka-telegram -f    # watch logs
+```
+
+Adjust paths to match your setup (`which claude`, repo location). `systemd --user` units need `loginctl enable-linger $USER` if you want them surviving logout.
+
+### 4. Pair your Telegram account
+
+With the session from step 3 running, DM your bot on Telegram. The bot replies with a 6-character pairing code. In the live session, run:
+
+```text
+/telegram:access pair <code>
+/telegram:access policy allowlist
+```
+
+The `allowlist` step locks the bot down so strangers who guess its username get silently dropped. After pairing, `~/.claude/channels/telegram/access.json` contains your numeric user ID — that's what `/schedule` reads when it sends the daily ping.
+
+### 5. Create the daily trigger
+
+Still in the live session:
+
+```text
+schedule /schedule daily at 08:00
+```
+
+That asks the `schedule` skill to wire up a `CronCreate` remote-agent trigger. It survives session restarts; the trigger fires `/schedule` each morning from within whichever live session has the Telegram channel attached. `/schedule`'s own idempotency check (`memory/daily/<date>-scheduled.md`) means a double-fire on the same day is a no-op.
+
+Inspect or edit your triggers later with the same skill:
+
+```text
+schedule list
+schedule update <trigger-id> time 09:30
+schedule delete <trigger-id>
+```
+
+### 6. Smoke test
+
+In the live session:
+
+```text
+/schedule
+```
+
+Expect:
+
+- A new file `memory/daily/<today>-scheduled.md` describing which case (1–6) fired and why.
+- A Telegram DM starting with `🌅 Today's focus`.
+- A commit on `main` via `git-sync.sh`.
+
+Then run `/schedule` again immediately. Expect `Already scheduled today:` and no second DM, no second commit.
+
+Test the inbound path by DM'ing the bot:
+
+```text
+add task: verify telegram round-trip
+```
+
+The live session should handle it as a normal `/add-task` invocation — a new `NK-<N>.md` appears and the bot replies with the task ID.
+
+### Troubleshooting
+
+| Symptom | Likely cause | Fix |
+| ------- | ------------ | --- |
+| Bot doesn't reply to your DM | Session wasn't launched with `--channels plugin:telegram@...`, or another process is holding the token | Confirm the session you started in step 3 is still running; kill stray `bun server.ts` processes |
+| `/schedule` logs `Notified: no — no allowlisted user` | You haven't paired yet, or `access.json` is empty | Re-do step 4 |
+| `/schedule` logs `Notified: no — telegram channel not attached` | The session running `/schedule` wasn't launched with `--channels` | Start the session per step 3 and re-run |
+| Daily trigger isn't firing | `scripts/lint.sh` will warn after 3 days of silence | `schedule list` to inspect; restart the live session if the trigger was created in a session that's since died |
+| Inbound DMs get ignored | `dmPolicy` is `disabled`, or message came from a non-allowlisted user | `/telegram:access` to inspect; `/telegram:access allow <user-id>` to approve |
+
+If Telegram is down or credentials are missing, `/schedule` still runs, still lands the task on the board, and still commits. Notification is a side-channel — the board is the source of truth.
 
 ## Pulling Harness Updates
 
