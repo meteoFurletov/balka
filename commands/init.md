@@ -1,5 +1,5 @@
 ---
-description: Set this repo up for balka — opt-in marker, the facts document, the proposals inbox, starter CLAUDE.md and review policy, and optionally the deploy gate and Stage 6 detector.
+description: Set this repo up for balka — opt-in marker, the facts document, the proposals inbox, starter AGENTS.md block and review policy, and optionally the deploy gate and Stage 6 detector.
 argument-hint: "[--artifacts] [--hooks] [--gate] [--watch]"
 allowed-tools: Read, Write, Edit, Glob, Grep, Bash, Skill, AskUserQuestion
 ---
@@ -13,10 +13,14 @@ start which you are doing, so the user is never guessing.
 **Renamed from sdlc-loop.** If `.claude/sdlc.json` exists and `.claude/balka.json`
 does not, this repo was set up under the plugin's old name. Before anything
 else, `git mv` it to `.claude/balka.json`, replace `.claude/sdlc.json` with
-`.claude/balka.json` inside its `artifactPaths`, and rename the
-`<!-- sdlc-loop:begin -->` / `<!-- sdlc-loop:end -->` markers in `CLAUDE.md` and
-`REVIEW.md` to `balka:`, so the merges below update those blocks instead of
+`.claude/balka.json` inside its `artifactPaths`, rename the
+`<!-- sdlc-loop:begin -->` / `<!-- sdlc-loop:end -->` markers in `REVIEW.md` to
+`balka:`, and move the `sdlc-loop` block out of `CLAUDE.md` into `AGENTS.md`
+under `balka:` markers, so the merges below update those blocks instead of
 adding second ones. Say that you did it.
+
+If `<artifactDir>/CURRENT` exists, `git rm` it and say so. Nothing reads it any
+more: several changes can be in flight at once, one per branch.
 
 **Never overwrite.** Merge into what is there. If a file exists and merging would
 change a line you did not write, report the collision — the file and the line —
@@ -34,17 +38,22 @@ from memory — re-deriving it by hand is the drift this plugin exists to stop.
 
 Ask where artefacts should live (default `docs/balka`) and create it. Then:
 
-- Merge the `CLAUDE.md` template between its `<!-- balka:begin -->` and
-  `<!-- balka:end -->` markers, so re-running updates that block and touches
+- Merge the `AGENTS.md` template into the repo's `AGENTS.md` between its
+  `<!-- balka:begin -->` and `<!-- balka:end -->` markers, so re-running updates that block and touches
   nothing else; substitute the real paths for `<artifacts-dir>` and
   `<facts-doc>`. If the block from an earlier version carries a "Verifying your
   work" table, replace the whole block: the verify commands live in
   `.claude/balka.json` now.
+- If the repo also has a `CLAUDE.md`, Claude Code reads it instead of
+  `AGENTS.md`. Make `@AGENTS.md` its first line unless it already imports it.
 - Write the facts document from the `estate.md` template at the path the owner
   chooses (default `docs/estate.md`), with the owner's name. Ask for the names
   that keep getting corrected in this estate and put them in now; an empty
   Names section on day one is how the corrections start.
 - Write `<artifactDir>/PROPOSALS.md` from its template.
+- Add `.claude/worktrees/` to `.gitignore` unless something there already
+  covers it. Worktree sessions live there, and the main checkout should not
+  list them as untracked.
 - Write `.github/copilot-instructions.md` from the `copilot-instructions.md`
   template, with the owner's name, and `REVIEW.md` from its template. Tell the
   owner that Copilot code review reads the former on every pull request, and
@@ -64,7 +73,7 @@ Set from what the repo actually looks like:
 - `scenarioGlobs` — where `.feature` files are. Look for existing ones; if there
   are none, ask where they will go.
 - `artifactDir` and `artifactPaths` — the artefact directory plus the facts
-  document, `CLAUDE.md`, `REVIEW.md`, `.github/copilot-instructions.md` and
+  document, `AGENTS.md`, `CLAUDE.md`, `REVIEW.md`, `.github/copilot-instructions.md` and
   `.claude/balka.json`. These are artefacts living outside the artefact
   directory, and leaving them out makes `plan-sync` block every commit that
   touches them.

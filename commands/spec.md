@@ -1,12 +1,20 @@
 ---
 description: Stage 2, Design — turn an accepted intent.md into spec.md, the Gherkin .feature files that are the contract, and their bindings written red.
 argument-hint: [optional — the change directory to work in]
-allowed-tools: Read, Write, Glob, Grep, Bash(date:*), Bash(jq:*), Bash(git rm:*), Bash(git status:*), Bash(ls:*), Skill, AskUserQuestion
+allowed-tools: Read, Write, Glob, Grep, Bash(date:*), Bash(jq:*), Bash(git rm:*), Bash(git status:*), Bash(git diff:*), Bash(git merge-base:*), Bash(git add:*), Bash(git commit:*), Bash(ls:*), Skill, AskUserQuestion
 ---
 
 Write `spec.md`, its `.feature` files and their bindings. Change: $ARGUMENTS
 
-If that is empty, use `<artifactDir>/CURRENT`.
+If that is empty, it is the change directory this branch has added or touched
+since it left the default branch: `git diff --name-only "$(git merge-base HEAD
+origin/HEAD)" -- <artifactDir>` plus untracked files there (use the default
+branch when there is no remote). If that is not exactly one, list the
+candidates and ask.
+
+Then check the claim: `bash "${CLAUDE_PLUGIN_ROOT}/scripts/claim.sh" check <artifactDir> <NNN>-<slug>`.
+Exit 3 means another agent holds this change: say who, from its message, and
+stop. One change, one main agent.
 
 ## Before anything
 
@@ -15,9 +23,10 @@ not run `/balka:init` and that the hooks are inert here, then continue with
 the defaults `artifactDir: docs/balka`, `scenarioGlobs: ["features/**/*.feature"]`
 and no facts document.
 
-Artefacts live one directory per change: `<artifactDir>/<NNN>-<slug>/`, with
-`<artifactDir>/CURRENT` naming the active one. Take the date from `date +%F`,
-never from your own sense of today.
+Artefacts live one directory per change: `<artifactDir>/<NNN>-<slug>/`. A
+change lives on one branch, usually in its own worktree, with one main agent;
+several can be in flight at once. Take the date from `date +%F`, never from your
+own sense of today.
 
 Read the facts document named by `facts` before drafting a word. It holds the
 estate's real names and the facts the code does not say; a draft that spells a
@@ -106,6 +115,7 @@ neither is silence. Write nothing to disk that the owner has not seen.
 
 After every `.feature` file has been through, print all of them once more in
 full, then the path of the spec, and ask whether it is accepted. When it is, set
-`Status: accepted`, print the paths and ask "Continue to plan now?". On yes, read
+`Status: accepted`, commit the spec, its `.feature` files and bindings on the
+change's branch, print the paths and ask "Continue to plan now?". On yes, read
 `${CLAUDE_PLUGIN_ROOT}/commands/plan.md` and follow it in this session. On no,
 stop.

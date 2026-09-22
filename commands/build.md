@@ -6,7 +6,15 @@ allowed-tools: Read, Write, Edit, MultiEdit, Glob, Grep, Bash, Agent, Skill
 
 Build the change: $ARGUMENTS
 
-If that is empty, use `<artifactDir>/CURRENT`.
+If that is empty, it is the change directory this branch has added or touched
+since it left the default branch: `git diff --name-only "$(git merge-base HEAD
+origin/HEAD)" -- <artifactDir>` plus untracked files there (use the default
+branch when there is no remote). If that is not exactly one, list the
+candidates and ask.
+
+Then check the claim: `bash "${CLAUDE_PLUGIN_ROOT}/scripts/claim.sh" check <artifactDir> <NNN>-<slug>`.
+Exit 3 means another agent holds this change: say who, from its message, and
+stop. One change, one main agent.
 
 ## Before anything
 
@@ -15,9 +23,10 @@ not run `/balka:init` and that the hooks are inert here, then continue with
 the defaults `artifactDir: docs/balka`, `scenarioGlobs: ["features/**/*.feature"]`
 and no facts document.
 
-Artefacts live one directory per change: `<artifactDir>/<NNN>-<slug>/`, with
-`<artifactDir>/CURRENT` naming the active one. Take the date from `date +%F`,
-never from your own sense of today.
+Artefacts live one directory per change: `<artifactDir>/<NNN>-<slug>/`. A
+change lives on one branch, usually in its own worktree, with one main agent;
+several can be in flight at once. Take the date from `date +%F`, never from your
+own sense of today.
 
 Read the facts document named by `facts` before drafting a word. It holds the
 estate's real names and the facts the code does not say; a draft that spells a

@@ -1,7 +1,7 @@
 ---
 description: Stage 1, Plan — write intent.md for a change: the problem, the outcome and the behaviours in plain words; split a programme into children.
 argument-hint: [what changes, in a sentence — or --split <NNN> to split an existing intent]
-allowed-tools: Read, Write, Glob, Grep, Bash(date:*), Bash(jq:*), Bash(git log:*), Bash(git status:*), Bash(ls:*), Skill, AskUserQuestion
+allowed-tools: Read, Write, Glob, Grep, Bash(date:*), Bash(jq:*), Bash(git log:*), Bash(git status:*), Bash(git switch:*), Bash(git add:*), Bash(git commit:*), Bash(ls:*), Skill, AskUserQuestion
 ---
 
 Write `intent.md` for: $ARGUMENTS
@@ -16,9 +16,10 @@ not run `/balka:init` and that the hooks are inert here, then continue with
 the defaults `artifactDir: docs/balka`, `scenarioGlobs: ["features/**/*.feature"]`
 and no facts document.
 
-Artefacts live one directory per change: `<artifactDir>/<NNN>-<slug>/`, with
-`<artifactDir>/CURRENT` naming the active one. Take the date from `date +%F`,
-never from your own sense of today.
+Artefacts live one directory per change: `<artifactDir>/<NNN>-<slug>/`. A
+change lives on one branch, usually in its own worktree, with one main agent;
+several can be in flight at once. Take the date from `date +%F`, never from your
+own sense of today.
 
 Read the facts document named by `facts` before drafting a word. It holds the
 estate's real names and the facts the code does not say; a draft that spells a
@@ -35,8 +36,15 @@ from memory — re-deriving it by hand is the drift this plugin exists to stop.
 
 ## Writing it
 
-Start a new change directory: next free `<NNN>`, a short slug from the subject.
-Write `<artifactDir>/<NNN>-<slug>/intent.md` and update `CURRENT`.
+Start a new change directory. Pick a short slug from the subject and take the
+number with `bash "${CLAUDE_PLUGIN_ROOT}/scripts/claim.sh" next <artifactDir> <slug>`: it prints
+`<NNN>-<slug>` and reserves that number for this worktree, so no other agent
+can take it. Never pick the number by hand. Write
+`<artifactDir>/<NNN>-<slug>/intent.md`.
+
+The change lives on one branch. In a worktree session the session's branch is
+it. If this checkout is on the default branch, start one first:
+`git switch -c <NNN>-<slug>`.
 
 This is the originator's document, read by someone deciding whether to fund the
 work who will never open the repo. Your job is to get what they mean onto the
@@ -84,8 +92,8 @@ in a fenced `gherkin` block, every scenario included. Acceptance is the word
 "accepted" from the owner; an answer to a scoped question is not acceptance, and
 neither is silence. Write nothing to disk that the owner has not seen.
 
-Then ask whether it is accepted. When it is, set `Status: accepted`, print the
-path and ask "Continue to design now?". On yes, read
+Then ask whether it is accepted. When it is, set `Status: accepted`, commit
+the change directory on its branch, print the path and ask "Continue to design now?". On yes, read
 `${CLAUDE_PLUGIN_ROOT}/commands/spec.md` and follow it in this session. On no,
 stop.
 
@@ -99,10 +107,10 @@ grew too large:
 2. Set the parent's `Status: split` and replace its Behaviours section with a
    `## Children` list of the child directories, in order. Its intent stays as
    the record of why the programme exists.
-3. Create each child directory with its own `intent.md`: Problem is one line
+3. Create each child directory, numbered by `claim.sh next`, with its own `intent.md`: Problem is one line
    pointing at the parent; Outcome and Behaviours carry only that capability.
    Draft them in order, each through the acceptance step above.
-4. Point `CURRENT` at the first child. `CURRENT` never names a split parent.
+4. A split parent is never built. Carry on with the first child.
 
 A parent that already had a spec or plan keeps them; note in the parent which
 child each `.feature` file now belongs to, and move nothing until that child's
@@ -112,5 +120,5 @@ design transition.
 
 An intent the owner is not going to pursue now gets `Status: parked`; one they
 have decided against gets `Status: rejected`. Either carries one line under the
-status line saying why, nothing downstream is written, and `CURRENT` moves to
-whatever is active. Never delete the file: the decision is part of the record.
+status line saying why, nothing downstream is written, and its claim is
+released with `claim.sh release <artifactDir> <NNN>-<slug>`. Never delete the file: the decision is part of the record.

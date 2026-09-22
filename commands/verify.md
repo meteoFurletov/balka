@@ -7,7 +7,7 @@ Fill `verify` in this project's `.claude/balka.json`.
 
 An agent that cannot tell a healthy run from a broken one will report success
 from a failed build. The four commands under `verify` are what Build runs until
-green and Test runs once more. They live in the config, not in `CLAUDE.md`: an
+green and Test runs once more. They live in the config, not in `AGENTS.md`: an
 agent needs them at Build, not in every session's context.
 
 ## Before anything
@@ -17,9 +17,10 @@ not run `/balka:init` and that the hooks are inert here, then continue with
 the defaults `artifactDir: docs/balka`, `scenarioGlobs: ["features/**/*.feature"]`
 and no facts document.
 
-Artefacts live one directory per change: `<artifactDir>/<NNN>-<slug>/`, with
-`<artifactDir>/CURRENT` naming the active one. Take the date from `date +%F`,
-never from your own sense of today.
+Artefacts live one directory per change: `<artifactDir>/<NNN>-<slug>/`. A
+change lives on one branch, usually in its own worktree, with one main agent;
+several can be in flight at once. Take the date from `date +%F`, never from your
+own sense of today.
 
 Read the facts document named by `facts` before drafting a word. It holds the
 estate's real names and the facts the code does not say; a draft that spells a
@@ -53,7 +54,7 @@ say plainly that the `.feature` files are the acceptance checklist the verifier
 reads by hand, and that `/balka:spec` will write no bindings until a runner
 exists. That is a supported configuration, not a gap.
 
-If `CLAUDE.md` still carries a "Verifying your work" table from an earlier
+If the balka block in `AGENTS.md` or `CLAUDE.md` still carries a "Verifying your work" table from an earlier
 version of this plugin, offer to remove it: the config is the one source now.
 
 Finish by running all four once more and stating green or red, one line each.

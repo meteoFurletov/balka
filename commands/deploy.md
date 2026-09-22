@@ -6,7 +6,15 @@ allowed-tools: Read, Edit, Glob, Grep, Bash, Skill, AskUserQuestion
 
 Deploy the change: $ARGUMENTS
 
-If that is empty, use `<artifactDir>/CURRENT`.
+If that is empty, it is the change directory this branch has added or touched
+since it left the default branch: `git diff --name-only "$(git merge-base HEAD
+origin/HEAD)" -- <artifactDir>` plus untracked files there (use the default
+branch when there is no remote). If that is not exactly one, list the
+candidates and ask.
+
+Then check the claim: `bash "${CLAUDE_PLUGIN_ROOT}/scripts/claim.sh" check <artifactDir> <NNN>-<slug>`.
+Exit 3 means another agent holds this change: say who, from its message, and
+stop. One change, one main agent.
 
 ## Before anything
 
@@ -15,9 +23,10 @@ not run `/balka:init` and that the hooks are inert here, then continue with
 the defaults `artifactDir: docs/balka`, `scenarioGlobs: ["features/**/*.feature"]`
 and no facts document.
 
-Artefacts live one directory per change: `<artifactDir>/<NNN>-<slug>/`, with
-`<artifactDir>/CURRENT` naming the active one. Take the date from `date +%F`,
-never from your own sense of today.
+Artefacts live one directory per change: `<artifactDir>/<NNN>-<slug>/`. A
+change lives on one branch, usually in its own worktree, with one main agent;
+several can be in flight at once. Take the date from `date +%F`, never from your
+own sense of today.
 
 Read the facts document named by `facts` before drafting a word. It holds the
 estate's real names and the facts the code does not say; a draft that spells a
@@ -43,6 +52,12 @@ Read `deploy` in `.claude/balka.json`: `"pr"` means everything below;
 `"manual"` means skip the pull request and only print how the change lands.
 
 ## The pull request
+
+First make sure the number is still this change's. Agents on other machines
+share no claims, so `git fetch` and look on `origin/HEAD` for
+`<artifactDir>/<NNN>-*` under another slug. If one is there, take a new number
+with `bash "${CLAUDE_PLUGIN_ROOT}/scripts/claim.sh" next <artifactDir> <slug>`, `git mv` the directory, fix
+the references to it, commit, and say so.
 
 Push the branch and open the pull request against the default branch, unless
 `$ARGUMENTS` names one that already exists. Its title is the change's slug in
@@ -84,3 +99,8 @@ Finish by printing the **How changes land** section of the facts document —
 the repos, the merge order, what to run after, how to roll back — so the owner
 has the landing steps in front of them. Where that section is empty, say so and
 offer to write it with them: the loop cannot land what nobody has written down.
+
+Then say what happens to the worktree. Once the code owner merges, it has done
+its job: archive the session (the desktop app removes the worktree and its
+branch) or run `git worktree remove`. Its claim lapses with it. Until the merge,
+keep it: review fixes land there.

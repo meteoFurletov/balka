@@ -1,11 +1,21 @@
 ---
 description: Stage 3, Build, first half — plan the implementation from an accepted spec.md in plan mode, naming the files that change and the scenarios the work proves.
 argument-hint: [optional — which part of the spec to plan]
-allowed-tools: Read, Write, Glob, Grep, Bash(date:*), Bash(jq:*), Bash(git log:*), Bash(git status:*), Bash(ls:*), Skill, AskUserQuestion
+allowed-tools: Read, Write, Glob, Grep, Bash(date:*), Bash(jq:*), Bash(git log:*), Bash(git status:*), Bash(git diff:*), Bash(git merge-base:*), Bash(git add:*), Bash(git commit:*), Bash(ls:*), Skill, AskUserQuestion
 disallowed-tools: Edit MultiEdit NotebookEdit
 ---
 
 Plan the work in `spec.md`. Scope: $ARGUMENTS
+
+The change is the change directory this branch has added or touched
+since it left the default branch: `git diff --name-only "$(git merge-base HEAD
+origin/HEAD)" -- <artifactDir>` plus untracked files there (use the default
+branch when there is no remote). If that is not exactly one, list the
+candidates and ask.
+
+Then check the claim: `bash "${CLAUDE_PLUGIN_ROOT}/scripts/claim.sh" check <artifactDir> <NNN>-<slug>`.
+Exit 3 means another agent holds this change: say who, from its message, and
+stop. One change, one main agent.
 
 **Explore and decide. Do not implement.** `allowed-tools` pre-approves the
 read-only commands above; it does not stop other tools, so the restriction is
@@ -19,9 +29,10 @@ not run `/balka:init` and that the hooks are inert here, then continue with
 the defaults `artifactDir: docs/balka`, `scenarioGlobs: ["features/**/*.feature"]`
 and no facts document.
 
-Artefacts live one directory per change: `<artifactDir>/<NNN>-<slug>/`, with
-`<artifactDir>/CURRENT` naming the active one. Take the date from `date +%F`,
-never from your own sense of today.
+Artefacts live one directory per change: `<artifactDir>/<NNN>-<slug>/`. A
+change lives on one branch, usually in its own worktree, with one main agent;
+several can be in flight at once. Take the date from `date +%F`, never from your
+own sense of today.
 
 Read the facts document named by `facts` before drafting a word. It holds the
 estate's real names and the facts the code does not say; a draft that spells a
@@ -80,6 +91,6 @@ neither is silence. Write nothing to disk that the owner has not seen.
 Present the plan by path. The owner's read is the gate for this stage: they may
 say accepted, or ask for a change. Accepting the plan is the decision to build
 it — there is no second question. Once accepted, write
-`<artifactDir>/<NNN>-<slug>/plan.md` with `Status: accepted`, confirm `CURRENT`
-points at it, print the path, then read `${CLAUDE_PLUGIN_ROOT}/commands/build.md`
+`<artifactDir>/<NNN>-<slug>/plan.md` with `Status: accepted`, commit it on the
+change's branch, print the path, then read `${CLAUDE_PLUGIN_ROOT}/commands/build.md`
 and follow it in this session. Stop only if the owner says to build later.

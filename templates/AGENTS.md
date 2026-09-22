@@ -2,8 +2,8 @@
 ## Balka
 
 This repo runs the six-stage loop from the `balka` plugin. Artefacts are
-plain markdown in git, one directory per change under `<artifacts-dir>/`, with
-`CURRENT` naming the active one.
+plain markdown in git, one directory per change under `<artifacts-dir>/`, each on
+its own branch with one main agent.
 
 | Stage | Command | Writes |
 | --- | --- | --- |

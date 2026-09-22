@@ -28,7 +28,7 @@ templates/
   plan.md                   Stage 3
   estate.md                 the facts document init writes
   PROPOSALS.md              the reflect inbox init writes
-  CLAUDE.md                 the starter block init merges into the project
+  AGENTS.md                 the starter block init merges into the project
   REVIEW.md                 the pointer at the review policy
   copilot-instructions.md   the review policy Copilot applies to every PR
   bands.yaml                Stage 6 detection bands
@@ -61,7 +61,6 @@ accepts it and moves the work on. If you do not know who, ask.
 
 **Status is one word** from: draft, accepted, split, parked, rejected, built. A
 parked or rejected artefact carries one line saying why and is never deleted.
-`CURRENT` never names a split parent.
 
 **Scenarios are the contract.** `.feature` files and the `Then` assertions in
 their bindings change at the design transition and nowhere else. Two hooks hold
@@ -81,7 +80,10 @@ pass." and that is the whole requirement on them.
 
 ## Layout
 
-Artefacts live one directory per change: `<artifactDir>/<NNN>-<slug>/`, with
-`<artifactDir>/CURRENT` holding the active directory name. Keep that pointer
-current — `plan-sync` and `scenario-commit` read it to find the plan and the
-spec a commit is measured against.
+Artefacts live one directory per change: `<artifactDir>/<NNN>-<slug>/`. A
+change lives on one branch, usually in its own worktree, with one main agent.
+There is no pointer to an active change: several are in flight at once, and
+each file's `Status:` line is the only state. A number comes from
+`scripts/claim.sh next`, never by hand — the claim is what stops two agents
+sharing a change. `plan-sync` measures a commit against whichever accepted plan
+covers it.

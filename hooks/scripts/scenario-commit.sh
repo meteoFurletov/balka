@@ -45,17 +45,12 @@ done <<< "$staged"
 artifact_dir=$(printf '%s' "$BALKA_CONFIG" | jq -r '.artifactDir // empty')
 [ -n "$artifact_dir" ] || balka_note "no artifactDir in .claude/balka.json — a scenario is moving unchecked."
 
-current_file="$BALKA_PROJ/$artifact_dir/CURRENT"
-spec_rel=""
-if [ -f "$current_file" ]; then
-  current=$(head -n1 "$current_file" | tr -d '[:space:]')
-  spec_rel="$artifact_dir/$current/spec.md"
-  printf '%s' "$staged" | awk -F'\t' '{print $2}' | grep -qx "$spec_rel" && exit 0
-else
-  # No pointer: any spec.md under the artefact directory counts.
-  printf '%s' "$staged" | awk -F'\t' '{print $2}' | grep -Eq "^${artifact_dir}/[^/]+/spec\.md$" && exit 0
-  spec_rel="$artifact_dir/<change>/spec.md"
-fi
+# Any change's spec.md counts: several changes can be in flight at once, and
+# there is no pointer saying which one this commit belongs to.
+while IFS=$'\t' read -r _ path _; do
+  case "$path" in "$artifact_dir"/*/spec.md) exit 0 ;; esac
+done <<< "$staged"
+spec_rel="$artifact_dir/<change>/spec.md"
 
 balka_deny "Blocked: this commit moves the scenario contract without its spec.
 

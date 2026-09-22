@@ -38,11 +38,17 @@ balka_ask() {
   exit 0
 }
 
-# The project root arrives as $1 from hooks.json via ${CLAUDE_PROJECT_DIR}.
-# Hooks run in the session cwd, so the input's own `cwd` is not trustworthy and
-# every git call must be `git -C "$BALKA_PROJ"`.
+# Which checkout the action is in. ${CLAUDE_PROJECT_DIR} arrives as $1 and stays
+# at the checkout the session started in; the input's `cwd` follows the agent
+# into a worktree and on through `cd`. So the git top level of `cwd` wins, and
+# $1 is the fallback. Hooks themselves run elsewhere, so every git call must be
+# `git -C "$BALKA_PROJ"`.
 balka_load_config() {
-  BALKA_PROJ=${1:-$PWD}
+  local cwd
+  cwd=$(printf '%s' "${BALKA_INPUT:-}" | jq -r '.cwd // empty' 2>/dev/null)
+  BALKA_PROJ=""
+  [ -n "$cwd" ] && BALKA_PROJ=$(git -C "$cwd" rev-parse --show-toplevel 2>/dev/null)
+  [ -n "$BALKA_PROJ" ] || BALKA_PROJ=${1:-$PWD}
   BALKA_CFG="$BALKA_PROJ/.claude/balka.json"
   # A repo that opted in before the rename from sdlc-loop still counts.
   [ -f "$BALKA_CFG" ] || BALKA_CFG="$BALKA_PROJ/.claude/sdlc.json"

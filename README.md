@@ -17,6 +17,7 @@ skills/
 templates/       the twelve shipped artefacts, read via ${CLAUDE_PLUGIN_ROOT}
 hooks/           hooks.json registers all four; each is inert without opt-in
 scripts/watch.py the Stage 6 detector — stdlib + gh, no model in the path
+scripts/claim.sh one change, one main agent: reserves change numbers
 tests/run.sh     every hook blocking and silent, every detection rule; no network
 ```
 
@@ -34,7 +35,7 @@ Then, in a repo you want to run the loop in:
 ```
 
 `init` writes an opt-in marker, the facts document, the proposals inbox, a
-starter `CLAUDE.md` block and the review policy. It merges with what is there
+starter `AGENTS.md` block and the review policy. It merges with what is there
 and never overwrites; on a conflict it reports and stops. Adopt one play at a
 time with `--artifacts`, `--hooks`, `--gate` and `--watch`.
 
@@ -72,9 +73,29 @@ it. Every artefact names one owner. And size comes from scope: one change is one
 capability, one or two `.feature` files, and an intent that needs more is split
 into children rather than cut — the parent stays with `Status: split`.
 
-Artefacts live one directory per change, `<artifactDir>/<NNN>-<slug>/`, with
-`<artifactDir>/CURRENT` naming the active one. The commit hooks read that
-pointer to find the plan and the spec a commit is measured against.
+Artefacts live one directory per change, `<artifactDir>/<NNN>-<slug>/`, and a
+change lives on one branch with one main agent. There is no pointer to an
+active change; see [Worktrees](#worktrees).
+
+## Worktrees
+
+One change, one branch, one main agent. A worktree session is the natural home
+for that: in the Claude desktop app, start a session with **worktree** on, or run
+`claude --worktree <name>` in a terminal.
+
+- `/balka:intent` claims the next change number for that worktree. The claim
+  lives in the repo's shared `.git`, so an agent in another worktree gets the
+  next number, and is refused if it tries to work on yours.
+- Stay in the one session from intent to deploy. A new session with worktree
+  on starts a *new* worktree from the default branch, without your intent and
+  spec. For a clean context between stages, `/clear` in the same session: each
+  stage reads what it needs from the committed artefacts.
+- Each stage commits its artefacts on the branch, so the worktree never holds
+  the only copy.
+- The hooks follow the session into its worktree: they read the hook input's
+  `cwd`, not the checkout the session started in.
+- After the merge, archive the session. The app removes the worktree and its
+  branch, and the claim lapses with it.
 
 ## The facts document
 
@@ -124,8 +145,8 @@ opted-in repo at once — no copies to drift.
 | Hook | Fires on | Blocks |
 | --- | --- | --- |
 | `protect-scenarios` | `Edit`/`Write`/`MultiEdit` | A write over an **existing** `.feature` file. New ones pass. |
-| `scenario-commit` | `Bash`, `git commit` | A commit that modifies, deletes or renames an existing `.feature` file, unless the active change's `spec.md` is staged with it. New files pass. |
-| `plan-sync` | `Bash`, `git commit` | A commit touching files absent from `plan.md`'s *Files that change*, unless `plan.md` is staged with it. |
+| `scenario-commit` | `Bash`, `git commit` | A commit that modifies, deletes or renames an existing `.feature` file, unless a change's `spec.md` is staged with it. New files pass. |
+| `plan-sync` | `Bash`, `git commit` | A commit no single accepted `plan.md` covers in its *Files that change*, unless a `plan.md` is staged with it. |
 | `deploy-gate` | `Bash` | Nothing — it *asks*. Only active once `init --gate` writes a `gate` object. |
 
 The first three allow or block with no human in the path. `deploy-gate` is the
@@ -151,7 +172,7 @@ intent, and a gate that guesses is a gate that gets switched off.
 | --- | --- |
 | `version` | `2`. `init --hooks` upgrades a version 1 file in place. |
 | `artifactDir` | Where change directories live. Default `docs/balka`. |
-| `artifactPaths` | Globs `plan-sync` never requires a plan entry for. Must include the facts document, `CLAUDE.md`, `REVIEW.md` and `.github/copilot-instructions.md`, which are artefacts living outside the artefact directory. |
+| `artifactPaths` | Globs `plan-sync` never requires a plan entry for. Must include the facts document, `AGENTS.md`, `CLAUDE.md`, `REVIEW.md` and `.github/copilot-instructions.md`, which are artefacts living outside the artefact directory. |
 | `scenarioGlobs` | What the two scenario hooks protect. |
 | `facts` | The facts document. Default `docs/estate.md`. |
 | `verify` | The `build`, `test`, `lint` and `scenarios` commands, written by `/balka:verify`. `null` means no such check; `scenarios: null` means no runner and the `.feature` files are the checklist the verifier reads by hand. |
@@ -193,7 +214,7 @@ nothing else" is not something prompting can guarantee.
 `init --watch` requires `gh`, at least 30 calendar days of CI history **and** at
 least 20 days carrying 3 or more runs, and refuses otherwise rather than
 installing a detector with no stable baseline. A repo with no CI skips this
-stage and says so in its `CLAUDE.md`.
+stage and says so in its `AGENTS.md`.
 
 Stage 6 is the one part of this plugin copied into the project — GitHub Actions
 cannot see your plugin cache. Re-run `/balka:watch` after upgrading.
@@ -218,8 +239,8 @@ loop.
 Until 0.3.1 this was `sdlc-loop`, a plugin inside
 [meteoFurletov/skills](https://github.com/meteoFurletov/skills). Its git history
 came along. A repo set up under the old name keeps working: the hooks still read
-`.claude/sdlc.json`, and `/balka:init` renames it and the `CLAUDE.md` and
-`REVIEW.md` markers. To switch an install, uninstall `sdlc-loop@meteof-skills` and
+`.claude/sdlc.json`, and `/balka:init` renames it, renames the `REVIEW.md`
+markers and moves the `CLAUDE.md` block into `AGENTS.md`. To switch an install, uninstall `sdlc-loop@meteof-skills` and
 install `balka@meteof-skills` in its place.
 
 The name used to belong to a file-based personal OS for Claude Code. It is kept

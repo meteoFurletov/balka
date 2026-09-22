@@ -29,7 +29,7 @@ check "docs/balka/** matches nested"                    yes "$(g 'docs/balka/**'
 check "* does not cross a separator"                   no  "$(g 'src/*.py' 'src/a/b.py')"
 check "? matches one char"                             yes "$(g 'v?.txt' 'v1.txt')"
 check "a dot is literal"                               no  "$(g 'a.txt' 'axtxt')"
-check "CLAUDE.md matches itself"                       yes "$(g 'CLAUDE.md' 'CLAUDE.md')"
+check "AGENTS.md matches itself"                       yes "$(g 'AGENTS.md' 'AGENTS.md')"
 
 # --- fixture repo ----------------------------------------------------------
 REPO="$TMP/repo"
@@ -42,6 +42,8 @@ printf 'a\n' > "$REPO/src/app.py"; printf 'b\n' > "$REPO/src/rogue.py"
 cat > "$REPO/docs/balka/001-login/plan.md" <<'PLAN'
 # Plan: login
 
+From `spec.md` (2026-09-22). Owner: t. Status: accepted. Date: 2026-09-22.
+
 ## Files that change
 
 - `src/app.py`
@@ -49,7 +51,6 @@ cat > "$REPO/docs/balka/001-login/plan.md" <<'PLAN'
 
 ## Risks and rollback
 PLAN
-printf '001-login\n' > "$REPO/docs/balka/CURRENT"
 mkdir -p "$REPO/src/lib"; printf 'c\n' > "$REPO/src/lib/x.py"
 
 # Run a hook and report its decision, or "silent".
@@ -89,15 +90,25 @@ git -C "$REPO" add src/rogue.py
 check "an unplanned staged file is denied" deny "$(hook plan-sync.sh "$COMMIT")"
 check "chained git commit is still caught" deny \
   "$(hook plan-sync.sh '{"tool_name":"Bash","tool_input":{"command":"git add -A && git commit -m wip"}}')"
-cp "$PLUGIN/templates/CLAUDE.md" "$REPO/CLAUDE.md"; git -C "$REPO" add CLAUDE.md
+cp "$PLUGIN/templates/AGENTS.md" "$REPO/AGENTS.md"; git -C "$REPO" add AGENTS.md
 check "an artifactPaths file needs no plan entry" deny "$(hook plan-sync.sh "$COMMIT")"
 git -C "$REPO" reset -q src/rogue.py
 check "only artefacts unplanned is silent" silent "$(hook plan-sync.sh "$COMMIT")"
 git -C "$REPO" add src/rogue.py docs/balka/001-login/plan.md
 check "plan.md staged alongside is silent" silent "$(hook plan-sync.sh "$COMMIT")"
 mv "$REPO/docs/balka/001-login/plan.md" "$TMP/plan.bak"
-check "no plan.md allows with a note" note "$(hook plan-sync.sh "$COMMIT")"
+check "no accepted plan is silent" silent "$(hook plan-sync.sh "$COMMIT")"
 mv "$TMP/plan.bak" "$REPO/docs/balka/001-login/plan.md"
+git -C "$REPO" reset -q docs/balka/001-login/plan.md
+mkdir -p "$REPO/docs/balka/002-rogue"
+printf '# Plan: rogue\n\nStatus: accepted.\n\n## Files that change\n\n- src/rogue.py\n' \
+  > "$REPO/docs/balka/002-rogue/plan.md"
+check "two changes in one commit is denied" deny "$(hook plan-sync.sh "$COMMIT")"
+git -C "$REPO" reset -q src/app.py src/lib/x.py
+check "a commit inside a second accepted plan is silent" silent "$(hook plan-sync.sh "$COMMIT")"
+sed -i 's/Status: accepted/Status: built/' "$REPO/docs/balka/002-rogue/plan.md"
+check "a built plan covers nothing" deny "$(hook plan-sync.sh "$COMMIT")"
+rm -r "$REPO/docs/balka/002-rogue"
 
 echo
 echo "scenario-commit"
@@ -137,6 +148,32 @@ check "an unrelated command is silent" silent \
   "$(hook deploy-gate.sh '{"tool_name":"Bash","tool_input":{"command":"npm test"}}')"
 check "a staging deploy is silent" silent \
   "$(hook deploy-gate.sh '{"tool_name":"Bash","tool_input":{"command":"kubectl apply -f k8s/staging.yaml"}}')"
+
+echo
+echo "claim"
+CLAIM="$PLUGIN/scripts/claim.sh"
+WT="$TMP/wt"
+git -C "$REPO" worktree add -q "$WT" -b other
+printf 'y\n' >> "$WT/src/rogue.py"; git -C "$WT" add src/rogue.py
+check "with no cwd a hook checks the session's checkout" silent "$(hook plan-sync.sh "$COMMIT")"
+check "a hook follows cwd into the worktree" deny \
+  "$(hook plan-sync.sh "{\"cwd\":\"$WT/src\",\"tool_name\":\"Bash\",\"tool_input\":{\"command\":\"git commit -m wip\"}}")"
+git -C "$WT" reset -q; git -C "$WT" checkout -q -- src/rogue.py
+claim() { local dir=$1; shift; (cd "$dir" && bash "$CLAIM" "$@" 2>/dev/null); }
+code()  { claim "$@" >/dev/null; echo $?; }
+check "next skips the numbers already on disk"   002-rate-limit "$(claim "$REPO" next docs/balka rate-limit)"
+check "next skips a number another agent holds"  003-search     "$(claim "$WT" next docs/balka search)"
+check "a change you hold passes"                 0 "$(code "$REPO" check docs/balka 002-rate-limit)"
+check "a change another live worktree holds is refused" 3 "$(code "$WT" check docs/balka 002-rate-limit)"
+check "an unclaimed change is claimed on check"  0 "$(code "$WT" check docs/balka 004-docs)"
+check "...and then refused to everyone else"     3 "$(code "$REPO" check docs/balka 004-docs)"
+claim "$REPO" release docs/balka 002-rate-limit
+check "a released change can be taken"           0 "$(code "$WT" check docs/balka 002-rate-limit)"
+claim "$REPO" release docs/balka 004-docs
+check "release leaves another agent's claim"     3 "$(code "$REPO" check docs/balka 004-docs)"
+rm -rf "$WT"
+check "a claim whose worktree is gone is taken over" 0 "$(code "$REPO" check docs/balka 004-docs)"
+git -C "$REPO" worktree prune
 
 echo
 echo "watch.py"

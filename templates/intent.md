@@ -41,6 +41,6 @@ Behaviours with the ordered list of child changes, one line each:
 
 1. `<NNN>-<slug>` — <the one capability it carries>
 
-CURRENT never points at a split parent. A parked or rejected intent carries one
+A split parent is never built. A parked or rejected intent carries one
 line under the status saying why, and nothing downstream is written.
 -->

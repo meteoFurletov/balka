@@ -13,9 +13,10 @@ not run `/balka:init` and that the hooks are inert here, then continue with
 the defaults `artifactDir: docs/balka`, `scenarioGlobs: ["features/**/*.feature"]`
 and no facts document.
 
-Artefacts live one directory per change: `<artifactDir>/<NNN>-<slug>/`, with
-`<artifactDir>/CURRENT` naming the active one. Take the date from `date +%F`,
-never from your own sense of today.
+Artefacts live one directory per change: `<artifactDir>/<NNN>-<slug>/`. A
+change lives on one branch, usually in its own worktree, with one main agent;
+several can be in flight at once. Take the date from `date +%F`, never from your
+own sense of today.
 
 Read the facts document named by `facts` before drafting a word. It holds the
 estate's real names and the facts the code does not say; a draft that spells a
@@ -61,7 +62,7 @@ the evidence behind it in one line, and a route:
 - **plugin** — a rule that would hold in any repo. It changes a command, a
   template, a hook or the README of the plugin, in the next version.
 - **project** — a fact, a name or a convention of this estate. It goes to the
-  facts document, `CLAUDE.md` or a project skill, now.
+  facts document, `AGENTS.md` or a project skill, now.
 - **dropped** — with the reason.
 
 Show the list and let the owner accept, strike or re-route each item. Then:
