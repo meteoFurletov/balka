@@ -1,4 +1,4 @@
-# sdlc-loop
+# balka
 
 The six-stage AI-native SDLC playbook carried as a Claude Code plugin, so the
 process is fixed in one place instead of re-derived by hand in every repo.
@@ -12,8 +12,8 @@ it. All state is plain markdown, Gherkin and YAML in the project's own git.
 ```
 commands/        one per stage transition, plus init, verify and reflect
 skills/
-  sdlc-artifacts        the house rules, for prose asks
-  sdlc-watch-writeback  the headless Stage 6 diagnosis
+  balka-artifacts        the house rules, for prose asks
+  balka-watch-writeback  the headless Stage 6 diagnosis
 templates/       the twelve shipped artefacts, read via ${CLAUDE_PLUGIN_ROOT}
 hooks/           hooks.json registers all four; each is inert without opt-in
 scripts/watch.py the Stage 6 detector — stdlib + gh, no model in the path
@@ -24,13 +24,13 @@ tests/run.sh     every hook blocking and silent, every detection rule; no networ
 
 ```bash
 claude plugin marketplace add meteoFurletov/skills
-claude plugin install sdlc-loop@meteof-skills
+claude plugin install balka@meteof-skills
 ```
 
 Then, in a repo you want to run the loop in:
 
 ```
-/sdlc-loop:init
+/balka:init
 ```
 
 `init` writes an opt-in marker, the facts document, the proposals inbox, a
@@ -44,14 +44,14 @@ The stages are the playbook's, numbered as it numbers them.
 
 | Stage | Command | Writes | Gate |
 | --- | --- | --- | --- |
-| 1 Plan | `/sdlc-loop:intent` | `intent.md` | the owner says accepted |
-| 2 Design | `/sdlc-loop:spec` | `spec.md`, `.feature` files, bindings written red | the owner reads every scenario in full |
-| 3 Build | `/sdlc-loop:plan`, then `/sdlc-loop:build` | `plan.md`, code | the owner's read of the plan; then nothing until green |
-| 4 Test | `/sdlc-loop:test` | nothing — a fix or a stop, then `Status: built` | a verifier that did not write the code |
-| 5 Deploy | `/sdlc-loop:deploy` | the pull request, fixes from its review | Copilot code review; the code owner merges |
-| 6 Maintain | `/sdlc-loop:watch` | `bands.yaml`, the detector | a metric breach becomes a draft `intent.md` |
-| any | `/sdlc-loop:verify` | the `verify` block in `.claude/sdlc.json` | — |
-| any | `/sdlc-loop:reflect` | the change list for the next version | the owner routes each item |
+| 1 Plan | `/balka:intent` | `intent.md` | the owner says accepted |
+| 2 Design | `/balka:spec` | `spec.md`, `.feature` files, bindings written red | the owner reads every scenario in full |
+| 3 Build | `/balka:plan`, then `/balka:build` | `plan.md`, code | the owner's read of the plan; then nothing until green |
+| 4 Test | `/balka:test` | nothing — a fix or a stop, then `Status: built` | a verifier that did not write the code |
+| 5 Deploy | `/balka:deploy` | the pull request, fixes from its review | Copilot code review; the code owner merges |
+| 6 Maintain | `/balka:watch` | `bands.yaml`, the detector | a metric breach becomes a draft `intent.md` |
+| any | `/balka:verify` | the `verify` block in `.claude/balka.json` | — |
+| any | `/balka:reflect` | the change list for the next version | the owner routes each item |
 
 ```mermaid
 flowchart LR
@@ -106,7 +106,7 @@ spec stops the loop for the owner. The pull request's review is the record.
 
 ## Deploy
 
-The agent that wrote the code does not approve it. `/sdlc-loop:deploy` opens
+The agent that wrote the code does not approve it. `/balka:deploy` opens
 the pull request, Copilot code review applies `.github/copilot-instructions.md`
 to it — requested automatically by a repository ruleset — and the command
 addresses every finding: fix, reply why not, record a departure, or stop when a
@@ -117,7 +117,7 @@ pipeline is a repo's own.
 ## Hooks
 
 Registered by the plugin in every session, and inert in any repo without a
-`.claude/sdlc.json`. Each script's first act is to look for that file and exit if
+`.claude/balka.json`. Each script's first act is to look for that file and exit if
 it is absent, so opting in is one file and upgrading the plugin upgrades every
 opted-in repo at once — no copies to drift.
 
@@ -145,16 +145,16 @@ Artefact concision, linking upstream, the owner field and scenario coverage are
 deliberately *not* hooks. None has a test a script can run without guessing at
 intent, and a gate that guesses is a gate that gets switched off.
 
-## `.claude/sdlc.json`
+## `.claude/balka.json`
 
 | Key | Meaning |
 | --- | --- |
 | `version` | `2`. `init --hooks` upgrades a version 1 file in place. |
-| `artifactDir` | Where change directories live. Default `docs/sdlc`. |
+| `artifactDir` | Where change directories live. Default `docs/balka`. |
 | `artifactPaths` | Globs `plan-sync` never requires a plan entry for. Must include the facts document, `CLAUDE.md`, `REVIEW.md` and `.github/copilot-instructions.md`, which are artefacts living outside the artefact directory. |
 | `scenarioGlobs` | What the two scenario hooks protect. |
 | `facts` | The facts document. Default `docs/estate.md`. |
-| `verify` | The `build`, `test`, `lint` and `scenarios` commands, written by `/sdlc-loop:verify`. `null` means no such check; `scenarios: null` means no runner and the `.feature` files are the checklist the verifier reads by hand. |
+| `verify` | The `build`, `test`, `lint` and `scenarios` commands, written by `/balka:verify`. `null` means no such check; `scenarios: null` means no runner and the `.feature` files are the checklist the verifier reads by hand. |
 | `deploy` | `"pr"` opens a pull request and runs the review loop; `"manual"` only prints how the change lands. |
 | `gate` | Absent unless `init --gate` ran. Holds `approver` and `deployPatterns`. |
 | `watch` | Absent unless `init --watch` ran. |
@@ -165,7 +165,7 @@ are shell globs matched against a command line, so `*` crosses `/` there.
 ## Reflect
 
 The loop changes by evidence, not by chat. A correction that repeats is recorded
-once in `<artifactDir>/PROPOSALS.md`. `/sdlc-loop:reflect` reads that inbox, the
+once in `<artifactDir>/PROPOSALS.md`. `/balka:reflect` reads that inbox, the
 change directories and the git history, asks the owner for their own notes, and
 produces a change list with each item routed: to the plugin, for the next
 version; to the project, applied now; or dropped, with the reason. Plugin-bound
@@ -196,7 +196,7 @@ installing a detector with no stable baseline. A repo with no CI skips this
 stage and says so in its `CLAUDE.md`.
 
 Stage 6 is the one part of this plugin copied into the project — GitHub Actions
-cannot see your plugin cache. Re-run `/sdlc-loop:watch` after upgrading.
+cannot see your plugin cache. Re-run `/balka:watch` after upgrading.
 
 ## Tests
 
@@ -212,3 +212,20 @@ blocking and staying silent, and every detection rule in isolation.
 `bash` and `jq` for the hooks. `python3` (stdlib only) and `gh` for the watcher
 and the deploy stage. Copilot code review on the GitHub account for the review
 loop.
+
+## History
+
+Until 0.3.1 this was `sdlc-loop`, a plugin inside
+[meteoFurletov/skills](https://github.com/meteoFurletov/skills). Its git history
+came along. A repo set up under the old name keeps working: the hooks still read
+`.claude/sdlc.json`, and `/balka:init` renames it and the `CLAUDE.md` and
+`REVIEW.md` markers. To switch an install, uninstall `sdlc-loop@meteof-skills` and
+install `balka@meteof-skills` in its place.
+
+The name used to belong to a file-based personal OS for Claude Code. It is kept
+on the [`v1-personal-os`](https://github.com/meteoFurletov/balka/tree/v1-personal-os)
+branch and is no longer developed.
+
+## License
+
+MIT — see [LICENSE](LICENSE).

@@ -10,9 +10,9 @@ If that is empty, use `<artifactDir>/CURRENT`.
 
 ## Before anything
 
-Read `.claude/sdlc.json` at the git root. If it is absent, say that this repo has
-not run `/sdlc-loop:init` and that the hooks are inert here, then continue with
-the defaults `artifactDir: docs/sdlc`, `scenarioGlobs: ["features/**/*.feature"]`
+Read `.claude/balka.json` at the git root. If it is absent, say that this repo has
+not run `/balka:init` and that the hooks are inert here, then continue with
+the defaults `artifactDir: docs/balka`, `scenarioGlobs: ["features/**/*.feature"]`
 and no facts document.
 
 Artefacts live one directory per change: `<artifactDir>/<NNN>-<slug>/`, with
@@ -28,7 +28,7 @@ it. If a name you need is missing there, ask, and add it there first.
 
 Read `${CLAUDE_PLUGIN_ROOT}/templates/<name>`. If that path does not exist, fall
 back to the install path from
-`jq -r '(.plugins // .) | to_entries[]|select(.key|startswith("sdlc-loop@"))|.value[0].installPath' ~/.claude/plugins/installed_plugins.json`
+`jq -r '(.plugins // .) | to_entries[]|select(.key|startswith("balka@"))|.value[0].installPath' ~/.claude/plugins/installed_plugins.json`
 plus `/templates/<name>`. If both fail, say so and stop. Never write a template
 from memory — re-deriving it by hand is the drift this plugin exists to stop.
 
@@ -68,7 +68,7 @@ the loop.
   verify commands green, and run the verifier again. Two rounds is normal; a
   third with the same finding means the plan is wrong — stop and say so.
 - A finding against a scenario, an assertion or the spec stops here. Print it
-  and say it needs the owner and `/sdlc-loop:spec`.
+  and say it needs the owner and `/balka:spec`.
 
 When the verifier is clean, set `Status: built` on the line under Departures in
 `plan.md`, commit it, and say so. Then ask "Continue to deploy now?". On yes,

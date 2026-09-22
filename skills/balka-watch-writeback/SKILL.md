@@ -1,6 +1,6 @@
 ---
-name: sdlc-watch-writeback
-description: Use when a Stage 6 CI drift detection has fired and the diagnosis must be written back as a draft intent.md — normally a headless `claude -p` run started by the sdlc-watch GitHub Actions workflow, whose prompt carries a band breach, a rolling baseline mean and sigma, and a daily failure-rate series. Covers what to investigate read-only (gh run view, git log across the window), how to tell a regression from flakiness, and the hard limit that the run emits one intent.md in the Stage 1 format and nothing else. Do NOT use to fix the fault it diagnoses.
+name: balka-watch-writeback
+description: Use when a Stage 6 CI drift detection has fired and the diagnosis must be written back as a draft intent.md — normally a headless `claude -p` run started by the balka-watch GitHub Actions workflow, whose prompt carries a band breach, a rolling baseline mean and sigma, and a daily failure-rate series. Covers what to investigate read-only (gh run view, git log across the window), how to tell a regression from flakiness, and the hard limit that the run emits one intent.md in the Stage 1 format and nothing else. Do NOT use to fix the fault it diagnoses.
 ---
 
 # Stage 6 write-back
@@ -37,7 +37,7 @@ guessing between them wastes the owner's time more than admitting uncertainty.
 
 Follow the intent template given in the prompt.
 
-- `Author: sdlc-watch`. Leave `Owner:` as `<name>` for a human to claim; an
+- `Author: balka-watch`. Leave `Owner:` as `<name>` for a human to claim; an
   invented owner is worse than an obvious blank.
 - `Status: draft`. Nobody has accepted this.
 - **Problem** carries the numbers from the prompt — the band, the rule tripped,

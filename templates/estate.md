@@ -20,5 +20,5 @@ what is live, what nobody owns, what may not be touched.>
 ## How changes land
 
 <Repos a change touches, the branch convention, the merge order across repos,
-what to run after a merge, and how to roll back. `/sdlc-loop:deploy` prints
+what to run after a merge, and how to roll back. `/balka:deploy` prints
 this section after the review loop.>

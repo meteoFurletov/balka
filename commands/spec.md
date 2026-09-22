@@ -10,9 +10,9 @@ If that is empty, use `<artifactDir>/CURRENT`.
 
 ## Before anything
 
-Read `.claude/sdlc.json` at the git root. If it is absent, say that this repo has
-not run `/sdlc-loop:init` and that the hooks are inert here, then continue with
-the defaults `artifactDir: docs/sdlc`, `scenarioGlobs: ["features/**/*.feature"]`
+Read `.claude/balka.json` at the git root. If it is absent, say that this repo has
+not run `/balka:init` and that the hooks are inert here, then continue with
+the defaults `artifactDir: docs/balka`, `scenarioGlobs: ["features/**/*.feature"]`
 and no facts document.
 
 Artefacts live one directory per change: `<artifactDir>/<NNN>-<slug>/`, with
@@ -28,7 +28,7 @@ it. If a name you need is missing there, ask, and add it there first.
 
 Read `${CLAUDE_PLUGIN_ROOT}/templates/<name>`. If that path does not exist, fall
 back to the install path from
-`jq -r '(.plugins // .) | to_entries[]|select(.key|startswith("sdlc-loop@"))|.value[0].installPath' ~/.claude/plugins/installed_plugins.json`
+`jq -r '(.plugins // .) | to_entries[]|select(.key|startswith("balka@"))|.value[0].installPath' ~/.claude/plugins/installed_plugins.json`
 plus `/templates/<name>`. If both fail, say so and stop. Never write a template
 from memory — re-deriving it by hand is the drift this plugin exists to stop.
 
@@ -68,7 +68,7 @@ behaviour from the intent into Gherkin in a `.feature` file committed alongside:
   no `.feature` file, and note the existing scenarios must still pass.
 
 **Bindings are written here, red.** Where `verify.scenarios` in
-`.claude/sdlc.json` names a runner, write the step definitions for each new
+`.claude/balka.json` names a runner, write the step definitions for each new
 `.feature` file now, in that runner, following the conventions the repo's
 existing bindings use. Each `Then` step asserts the observable result the
 scenario states — not that code ran, not that a call returned. `Given` and

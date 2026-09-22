@@ -21,7 +21,7 @@ is worse than none, because it teaches people to ignore it.
 
 Read `${CLAUDE_PLUGIN_ROOT}/templates/<name>`. If that path does not exist, fall
 back to the install path from
-`jq -r '(.plugins // .) | to_entries[]|select(.key|startswith("sdlc-loop@"))|.value[0].installPath' ~/.claude/plugins/installed_plugins.json`
+`jq -r '(.plugins // .) | to_entries[]|select(.key|startswith("balka@"))|.value[0].installPath' ~/.claude/plugins/installed_plugins.json`
 plus `/templates/<name>`. If both fail, say so and stop. Never write a template
 from memory — re-deriving it by hand is the drift this plugin exists to stop.
 
@@ -31,16 +31,16 @@ Copy, never overwriting — report a collision and stop:
 
 | From | To |
 | --- | --- |
-| `templates/bands.yaml` | `.sdlc/bands.yaml` |
-| `templates/intent.md` | `.sdlc/intent-template.md` |
-| `scripts/watch.py` | `scripts/sdlc-watch.py` |
-| `templates/sdlc-watch.yml` | `.github/workflows/sdlc-watch.yml` |
+| `templates/bands.yaml` | `.balka/bands.yaml` |
+| `templates/intent.md` | `.balka/intent-template.md` |
+| `scripts/watch.py` | `scripts/balka-watch.py` |
+| `templates/balka-watch.yml` | `.github/workflows/balka-watch.yml` |
 
 Substitute `artifactDir` for `<artifacts-dir>` in the workflow and set the cron.
-Record a `watch` object in `.claude/sdlc.json` carrying the paths and the
+Record a `watch` object in `.claude/balka.json` carrying the paths and the
 `scriptVersion` header from `watch.py`.
 
-Then take one live reading — run `scripts/sdlc-watch.py` once — so the owner
+Then take one live reading — run `scripts/balka-watch.py` once — so the owner
 sees the current mean and standard deviation before trusting the thing.
 
 ## What to tell the owner
@@ -50,4 +50,4 @@ In a sentence each: detection is deterministic and no model runs in it; a
 `intent.md` for a human to claim; a 3-sigma breach also opens a PR carrying it;
 the workflow needs an `ANTHROPIC_API_KEY` repository secret before the diagnose
 step will run; and this is the one part of the plugin copied into the repo, so
-re-run `/sdlc-loop:watch` after upgrading the plugin.
+re-run `/balka:watch` after upgrading the plugin.

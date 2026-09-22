@@ -1,7 +1,7 @@
-# Shared machinery for the sdlc-loop hooks.
+# Shared machinery for the balka hooks.
 #
 # Every hook is registered by the plugin in every session and is inert in any
-# repo that has not opted in. Opting in is one file: .claude/sdlc.json.
+# repo that has not opted in. Opting in is one file: .claude/balka.json.
 #
 # Two rules hold throughout:
 #   - A hook that cannot establish its condition allows the action and says why.
@@ -11,12 +11,12 @@
 #     decide (exit 0) leaves those settings in force.
 
 # Cannot establish the condition: say why, allow the action.
-sdlc_note() {
-  jq -n --arg m "sdlc-loop: $1" '{systemMessage: $m}'
+balka_note() {
+  jq -n --arg m "balka: $1" '{systemMessage: $m}'
   exit 0
 }
 
-sdlc_deny() {
+balka_deny() {
   jq -n --arg r "$1" '{
     hookSpecificOutput: {
       hookEventName: "PreToolUse",
@@ -27,7 +27,7 @@ sdlc_deny() {
   exit 0
 }
 
-sdlc_ask() {
+balka_ask() {
   jq -n --arg r "$1" '{
     hookSpecificOutput: {
       hookEventName: "PreToolUse",
@@ -40,28 +40,30 @@ sdlc_ask() {
 
 # The project root arrives as $1 from hooks.json via ${CLAUDE_PROJECT_DIR}.
 # Hooks run in the session cwd, so the input's own `cwd` is not trustworthy and
-# every git call must be `git -C "$SDLC_PROJ"`.
-sdlc_load_config() {
-  SDLC_PROJ=${1:-$PWD}
-  SDLC_CFG="$SDLC_PROJ/.claude/sdlc.json"
-  [ -f "$SDLC_CFG" ] || exit 0
+# every git call must be `git -C "$BALKA_PROJ"`.
+balka_load_config() {
+  BALKA_PROJ=${1:-$PWD}
+  BALKA_CFG="$BALKA_PROJ/.claude/balka.json"
+  # A repo that opted in before the rename from sdlc-loop still counts.
+  [ -f "$BALKA_CFG" ] || BALKA_CFG="$BALKA_PROJ/.claude/sdlc.json"
+  [ -f "$BALKA_CFG" ] || exit 0
 
   command -v jq >/dev/null 2>&1 || exit 0
-  jq -e . "$SDLC_CFG" >/dev/null 2>&1 \
-    || sdlc_note ".claude/sdlc.json is not valid JSON — no gate applied."
-  SDLC_CONFIG=$(cat "$SDLC_CFG")
+  jq -e . "$BALKA_CFG" >/dev/null 2>&1 \
+    || balka_note "${BALKA_CFG#"$BALKA_PROJ"/} is not valid JSON — no gate applied."
+  BALKA_CONFIG=$(cat "$BALKA_CFG")
 }
 
 # Read a string array out of the config, one entry per line.
-sdlc_cfg_list() {
-  printf '%s' "$SDLC_CONFIG" | jq -r --arg k "$1" '(.[$k] // []) | .[]'
+balka_cfg_list() {
+  printf '%s' "$BALKA_CONFIG" | jq -r --arg k "$1" '(.[$k] // []) | .[]'
 }
 
 # Turn a shell glob into an anchored regex. `**/` spans directories, `*` and `?`
 # stop at a separator, everything else is literal. Bash [[ ]] cannot do this:
 # globstar only affects pathname expansion, so `features/**/*.feature` would
 # never match `features/login.feature`.
-sdlc_glob_to_regex() {
+balka_glob_to_regex() {
   printf '%s' "$1" | awk '
     {
       out = "^"; n = length($0)
@@ -80,21 +82,21 @@ sdlc_glob_to_regex() {
     }'
 }
 
-sdlc_matches_any() {
+balka_matches_any() {
   local path=$1 glob
   shift
   for glob in "$@"; do
     [ -n "$glob" ] || continue
-    printf '%s' "$path" | grep -Eq "$(sdlc_glob_to_regex "$glob")" && return 0
+    printf '%s' "$path" | grep -Eq "$(balka_glob_to_regex "$glob")" && return 0
   done
   return 1
 }
 
 # Repo-relative, normalised. Returns 1 for a path outside the project.
-sdlc_relpath() {
+balka_relpath() {
   local path=$1
   case $path in
-    "$SDLC_PROJ"/*) path=${path#"$SDLC_PROJ"/} ;;
+    "$BALKA_PROJ"/*) path=${path#"$BALKA_PROJ"/} ;;
     /*)             return 1 ;;
   esac
   printf '%s' "${path#./}"

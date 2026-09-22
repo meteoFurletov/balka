@@ -20,12 +20,12 @@ echo "glob -> regex"
 # shellcheck source=../hooks/scripts/lib.sh
 . "$SCRIPTS/lib.sh"
 
-g() { printf '%s' "$2" | grep -Eq "$(sdlc_glob_to_regex "$1")" && echo yes || echo no; }
+g() { printf '%s' "$2" | grep -Eq "$(balka_glob_to_regex "$1")" && echo yes || echo no; }
 check "features/**/*.feature matches a top-level file" yes "$(g 'features/**/*.feature' 'features/login.feature')"
 check "features/**/*.feature matches a nested file"    yes "$(g 'features/**/*.feature' 'features/auth/login.feature')"
 check "features/**/*.feature rejects another dir"      no  "$(g 'features/**/*.feature' 'src/login.feature')"
 check "features/**/*.feature rejects another suffix"   no  "$(g 'features/**/*.feature' 'features/login.md')"
-check "docs/sdlc/** matches nested"                    yes "$(g 'docs/sdlc/**' 'docs/sdlc/001-x/plan.md')"
+check "docs/balka/** matches nested"                    yes "$(g 'docs/balka/**' 'docs/balka/001-x/plan.md')"
 check "* does not cross a separator"                   no  "$(g 'src/*.py' 'src/a/b.py')"
 check "? matches one char"                             yes "$(g 'v?.txt' 'v1.txt')"
 check "a dot is literal"                               no  "$(g 'a.txt' 'axtxt')"
@@ -33,13 +33,13 @@ check "CLAUDE.md matches itself"                       yes "$(g 'CLAUDE.md' 'CLA
 
 # --- fixture repo ----------------------------------------------------------
 REPO="$TMP/repo"
-mkdir -p "$REPO"/{.claude,features/auth,docs/sdlc/001-login,src}
+mkdir -p "$REPO"/{.claude,features/auth,docs/balka/001-login,src}
 git -C "$REPO" init -q .
 git -C "$REPO" config user.email t@t; git -C "$REPO" config user.name t
-cp "$PLUGIN/templates/sdlc.json" "$REPO/.claude/sdlc.json"
+cp "$PLUGIN/templates/balka.json" "$REPO/.claude/balka.json"
 printf 'Feature: login\n' > "$REPO/features/login.feature"
 printf 'a\n' > "$REPO/src/app.py"; printf 'b\n' > "$REPO/src/rogue.py"
-cat > "$REPO/docs/sdlc/001-login/plan.md" <<'PLAN'
+cat > "$REPO/docs/balka/001-login/plan.md" <<'PLAN'
 # Plan: login
 
 ## Files that change
@@ -49,7 +49,7 @@ cat > "$REPO/docs/sdlc/001-login/plan.md" <<'PLAN'
 
 ## Risks and rollback
 PLAN
-printf '001-login\n' > "$REPO/docs/sdlc/CURRENT"
+printf '001-login\n' > "$REPO/docs/balka/CURRENT"
 mkdir -p "$REPO/src/lib"; printf 'c\n' > "$REPO/src/lib/x.py"
 
 # Run a hook and report its decision, or "silent".
@@ -70,10 +70,13 @@ check "creating a new .feature is allowed" silent \
   "$(hook protect-scenarios.sh "{\"tool_name\":\"Write\",\"tool_input\":{\"file_path\":\"$REPO/features/auth/signup.feature\"}}")"
 check "editing a unit test is silent" silent \
   "$(hook protect-scenarios.sh "{\"tool_name\":\"Edit\",\"tool_input\":{\"file_path\":\"$REPO/src/app.py\"}}")"
-mv "$REPO/.claude/sdlc.json" "$REPO/.claude/off.json"
+mv "$REPO/.claude/balka.json" "$REPO/.claude/off.json"
 check "no opt-in marker is silent" silent \
   "$(hook protect-scenarios.sh "{\"tool_name\":\"Edit\",\"tool_input\":{\"file_path\":\"$REPO/features/login.feature\"}}")"
 mv "$REPO/.claude/off.json" "$REPO/.claude/sdlc.json"
+check "the pre-rename sdlc.json marker still opts in" deny \
+  "$(hook protect-scenarios.sh "{\"tool_name\":\"Edit\",\"tool_input\":{\"file_path\":\"$REPO/features/login.feature\"}}")"
+mv "$REPO/.claude/sdlc.json" "$REPO/.claude/balka.json"
 
 echo
 echo "plan-sync"
@@ -90,11 +93,11 @@ cp "$PLUGIN/templates/CLAUDE.md" "$REPO/CLAUDE.md"; git -C "$REPO" add CLAUDE.md
 check "an artifactPaths file needs no plan entry" deny "$(hook plan-sync.sh "$COMMIT")"
 git -C "$REPO" reset -q src/rogue.py
 check "only artefacts unplanned is silent" silent "$(hook plan-sync.sh "$COMMIT")"
-git -C "$REPO" add src/rogue.py docs/sdlc/001-login/plan.md
+git -C "$REPO" add src/rogue.py docs/balka/001-login/plan.md
 check "plan.md staged alongside is silent" silent "$(hook plan-sync.sh "$COMMIT")"
-mv "$REPO/docs/sdlc/001-login/plan.md" "$TMP/plan.bak"
+mv "$REPO/docs/balka/001-login/plan.md" "$TMP/plan.bak"
 check "no plan.md allows with a note" note "$(hook plan-sync.sh "$COMMIT")"
-mv "$TMP/plan.bak" "$REPO/docs/sdlc/001-login/plan.md"
+mv "$TMP/plan.bak" "$REPO/docs/balka/001-login/plan.md"
 
 echo
 echo "scenario-commit"
@@ -105,9 +108,9 @@ git -C "$REPO" add features/login.feature
 check "a modified .feature without spec.md is denied" deny "$(hook scenario-commit.sh "$COMMIT")"
 check "a non-commit Bash call is silent" silent \
   "$(hook scenario-commit.sh '{"tool_name":"Bash","tool_input":{"command":"git status"}}')"
-printf '# Spec\n' > "$REPO/docs/sdlc/001-login/spec.md"; git -C "$REPO" add docs/sdlc/001-login/spec.md
+printf '# Spec\n' > "$REPO/docs/balka/001-login/spec.md"; git -C "$REPO" add docs/balka/001-login/spec.md
 check "a modified .feature with spec.md staged is silent" silent "$(hook scenario-commit.sh "$COMMIT")"
-git -C "$REPO" reset -q; git -C "$REPO" checkout -q -- features/login.feature; rm -f "$REPO/docs/sdlc/001-login/spec.md"
+git -C "$REPO" reset -q; git -C "$REPO" checkout -q -- features/login.feature; rm -f "$REPO/docs/balka/001-login/spec.md"
 printf 'Feature: signup\n' > "$REPO/features/auth/signup.feature"; git -C "$REPO" add features/auth/signup.feature
 check "a new .feature is silent" silent "$(hook scenario-commit.sh "$COMMIT")"
 git -C "$REPO" reset -q; rm -f "$REPO/features/auth/signup.feature"
@@ -117,18 +120,18 @@ git -C "$REPO" reset -q; git -C "$REPO" checkout -q -- features/login.feature
 printf 'x\n' >> "$REPO/src/app.py"; git -C "$REPO" add src/app.py
 check "a code-only commit is silent" silent "$(hook scenario-commit.sh "$COMMIT")"
 git -C "$REPO" reset -q; git -C "$REPO" checkout -q -- src/app.py
-mv "$REPO/.claude/sdlc.json" "$REPO/.claude/off.json"
+mv "$REPO/.claude/balka.json" "$REPO/.claude/off.json"
 git -C "$REPO" rm -q features/login.feature
 check "no opt-in marker is silent" silent "$(hook scenario-commit.sh "$COMMIT")"
 git -C "$REPO" reset -q; git -C "$REPO" checkout -q -- features/login.feature
-mv "$REPO/.claude/off.json" "$REPO/.claude/sdlc.json"
+mv "$REPO/.claude/off.json" "$REPO/.claude/balka.json"
 
 echo
 echo "deploy-gate"
 DEPLOY='{"tool_name":"Bash","tool_input":{"command":"kubectl apply -f k8s/prod.yaml"}}'
 check "no gate configured is silent" silent "$(hook deploy-gate.sh "$DEPLOY")"
 jq '. + {gate:{approver:"Nikita",deployPatterns:["kubectl apply*prod*","*deploy*production*"]}}' \
-  "$REPO/.claude/sdlc.json" > "$TMP/g" && mv "$TMP/g" "$REPO/.claude/sdlc.json"
+  "$REPO/.claude/balka.json" > "$TMP/g" && mv "$TMP/g" "$REPO/.claude/balka.json"
 check "a matching deploy asks" ask "$(hook deploy-gate.sh "$DEPLOY")"
 check "an unrelated command is silent" silent \
   "$(hook deploy-gate.sh '{"tool_name":"Bash","tool_input":{"command":"npm test"}}')"
@@ -176,7 +179,7 @@ check "2 of the last 3 beyond 2 sigma diagnoses" diagnose "$(act "$BASE,0.26,0.1
 check "4 of the last 5 beyond 1 sigma logs"    log        "$(act "$BASE,0.2,0.2,0.1,0.2,0.2")"
 check "8 consecutive above the mean logs"       log        "$(act "$BASE,0.15,0.15,0.15,0.15,0.15,0.15,0.15,0.15")"
 check "a flat line finds nothing"              none        "$(act "$(python3 -c 'print(",".join(["0.0"]*31))')")"
-check "short history refuses" "sdlc-watch: insufficient history: 10 calendar days spanned and 10 qualifying days, against 30 and 20 required. A baseline this short is noise, so no detection ran." \
+check "short history refuses" "balka-watch: insufficient history: 10 calendar days spanned and 10 qualifying days, against 30 and 20 required. A baseline this short is noise, so no detection ran." \
   "$(err "0.1,0.2,0.1,0.1,0.2,0.1,0.1,0.2,0.1,0.1")"
 check "no gh needed for any of the above"      none        "$(PATH=/usr/bin:/bin act "$BASE,0.1")"
 

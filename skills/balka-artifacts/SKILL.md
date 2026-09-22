@@ -1,18 +1,18 @@
 ---
-name: sdlc-artifacts
-description: Use when writing or updating an SDLC artefact — intent.md, spec.md, plan.md, a Gherkin .feature file, the facts document or PROPOSALS.md — in a repo carrying .claude/sdlc.json, and no /sdlc-loop command was typed. Covers the house rules those artefacts must follow (read the facts document first, link upstream instead of restating it, name one owner, size by scope not by cutting, scenarios and their Then assertions change only at the design transition), the status vocabulary, and where the shipped templates live so a command can find them. Triggers include "write the intent for this", "turn that into a spec", "add a scenario", "update the plan", "split this intent", "park this", "what should the spec say", "add this name to the estate". Do NOT use for ordinary READMEs or design docs outside the loop.
+name: balka-artifacts
+description: Use when writing or updating an SDLC artefact — intent.md, spec.md, plan.md, a Gherkin .feature file, the facts document or PROPOSALS.md — in a repo carrying .claude/balka.json, and no /balka command was typed. Covers the house rules those artefacts must follow (read the facts document first, link upstream instead of restating it, name one owner, size by scope not by cutting, scenarios and their Then assertions change only at the design transition), the status vocabulary, and where the shipped templates live so a command can find them. Triggers include "write the intent for this", "turn that into a spec", "add a scenario", "update the plan", "split this intent", "park this", "what should the spec say", "add this name to the estate". Do NOT use for ordinary READMEs or design docs outside the loop.
 ---
 
 # SDLC artefacts
 
 This repo runs the six-stage loop. When someone asks for one of its artefacts in
-prose rather than through `/sdlc-loop:<stage>`, the rules below still apply.
+prose rather than through `/balka:<stage>`, the rules below still apply.
 
-Read `.claude/sdlc.json` at the git root for `artifactDir`, `scenarioGlobs` and
+Read `.claude/balka.json` at the git root for `artifactDir`, `scenarioGlobs` and
 `facts`. No such file means the repo has not opted in — write what was asked for
 and skip the rest of this.
 
-Prefer the command where one fits. `/sdlc-loop:intent`, `:spec` and `:plan`
+Prefer the command where one fits. `/balka:intent`, `:spec` and `:plan`
 carry the whole transition including the acceptance step. This skill is for the
 times nobody typed one.
 
@@ -32,8 +32,8 @@ templates/
   REVIEW.md                 the pointer at the review policy
   copilot-instructions.md   the review policy Copilot applies to every PR
   bands.yaml                Stage 6 detection bands
-  sdlc.json                 the opt-in marker
-  sdlc-watch.yml            the scheduled detector workflow
+  balka.json                 the opt-in marker
+  balka-watch.yml            the scheduled detector workflow
 ```
 
 Never reconstruct a template from memory. Re-deriving it by hand in each repo is

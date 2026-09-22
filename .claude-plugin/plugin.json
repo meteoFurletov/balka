@@ -1,13 +1,13 @@
 {
-  "name": "sdlc-loop",
+  "name": "balka",
   "description": "The six-stage AI-native SDLC playbook as commands, skills and opt-in hooks: intent, design with Gherkin scenarios and red bindings, plan then build until green, a fresh verifier, a Copilot-reviewed pull request, and a deterministic CI-drift watcher. Plus a reflect step that turns a repo's corrections into the next version. Project-agnostic; every artefact is plain markdown in the project's own git.",
-  "version": "0.3.1",
+  "version": "0.4.0",
   "author": {
     "name": "Nikita Furletov",
     "email": "meteofurletov@gmail.com"
   },
-  "homepage": "https://github.com/meteoFurletov/skills",
-  "repository": "https://github.com/meteoFurletov/skills",
+  "homepage": "https://github.com/meteoFurletov/balka",
+  "repository": "https://github.com/meteoFurletov/balka",
   "license": "MIT",
   "keywords": [
     "bdd",

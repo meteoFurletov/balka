@@ -14,9 +14,9 @@ you find yourself wanting to change code, the plan is not finished.
 
 ## Before anything
 
-Read `.claude/sdlc.json` at the git root. If it is absent, say that this repo has
-not run `/sdlc-loop:init` and that the hooks are inert here, then continue with
-the defaults `artifactDir: docs/sdlc`, `scenarioGlobs: ["features/**/*.feature"]`
+Read `.claude/balka.json` at the git root. If it is absent, say that this repo has
+not run `/balka:init` and that the hooks are inert here, then continue with
+the defaults `artifactDir: docs/balka`, `scenarioGlobs: ["features/**/*.feature"]`
 and no facts document.
 
 Artefacts live one directory per change: `<artifactDir>/<NNN>-<slug>/`, with
@@ -32,7 +32,7 @@ it. If a name you need is missing there, ask, and add it there first.
 
 Read `${CLAUDE_PLUGIN_ROOT}/templates/<name>`. If that path does not exist, fall
 back to the install path from
-`jq -r '(.plugins // .) | to_entries[]|select(.key|startswith("sdlc-loop@"))|.value[0].installPath' ~/.claude/plugins/installed_plugins.json`
+`jq -r '(.plugins // .) | to_entries[]|select(.key|startswith("balka@"))|.value[0].installPath' ~/.claude/plugins/installed_plugins.json`
 plus `/templates/<name>`. If both fail, say so and stop. Never write a template
 from memory — re-deriving it by hand is the drift this plugin exists to stop.
 
@@ -52,7 +52,7 @@ Two sections earn their place by being read by something downstream:
 - **Scenarios this work proves** — the `.feature` files and scenario names this
   change is accountable for. If the spec declared none, say so here too. New
   behaviour never gets a new scenario at this stage; if you find behaviour with
-  no scenario, stop and go back to `/sdlc-loop:spec`.
+  no scenario, stop and go back to `/balka:spec`.
 - **Files that change** — repo-relative paths, one per line, no prose. The
   `plan-sync` hook reads this list, so it has to be real. A directory path
   covers everything beneath it, but a list that is only directories tells the

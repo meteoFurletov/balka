@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# sdlc-watch-version: 1
+# balka-watch-version: 1
 """Stage 6 detector — watch the CI failure rate against a rolling baseline.
 
 No model runs in the detection path. This pulls CI history with `gh`, computes a
@@ -110,7 +110,7 @@ def fetch_runs(repo: str, branch: str, limit: int) -> list[dict]:
     if not shutil.which("gh"):
         raise WatchError(
             "`gh` is not on PATH. The Stage 6 detector reads CI history through "
-            "the GitHub CLI; install it, or remove the sdlc-watch workflow."
+            "the GitHub CLI; install it, or remove the balka-watch workflow."
         )
     proc = subprocess.run(
         ["gh", "run", "list", "--repo", repo, "--branch", branch,
@@ -262,7 +262,7 @@ Investigate read-only: recent commits, workflow definitions and the failing runs
 Then output an intent.md in exactly the template below and nothing else — no
 preamble, no code fences, no commentary after it.
 
-Author: sdlc-watch. Owner: leave as <name> for a human to claim. Status: draft.
+Author: balka-watch. Owner: leave as <name> for a human to claim. Status: draft.
 Date: {today}.
 
 Problem carries the evidence above plus what you found. Keep scenarios in plain
@@ -304,7 +304,7 @@ Template:
 
 
 def _open_pr(target, today, finding):
-    branch = f"sdlc-watch/ci-drift-{today}"
+    branch = f"balka-watch/ci-drift-{today}"
     body = (f"Opened by the Stage 6 detector.\n\n    {finding['rule']}\n\n"
             "This is a draft intent for a human owner to claim, not a fix.")
     for step in (
@@ -333,8 +333,8 @@ def main(argv=None) -> int:
     ap.add_argument("--dry-run", action="store_true", help="detect and report; never write")
     ap.add_argument("--github-output", help="file to append GitHub Actions outputs to")
     ap.add_argument("--write-back", action="store_true")
-    ap.add_argument("--artifact-dir", default="docs/sdlc")
-    ap.add_argument("--intent-template", default=".sdlc/intent-template.md")
+    ap.add_argument("--artifact-dir", default="docs/balka")
+    ap.add_argument("--intent-template", default=".balka/intent-template.md")
     args = ap.parse_args(argv)
 
     try:
@@ -370,14 +370,14 @@ def main(argv=None) -> int:
         finding = detect(points)
         action, band_name = band_action(config, finding["sigma_level"])
     except WatchError as exc:
-        print(f"sdlc-watch: {exc}", file=sys.stderr)
+        print(f"balka-watch: {exc}", file=sys.stderr)
         return 2
 
-    print(f"sdlc-watch: {finding['latest_day']} failure rate {finding['latest']:.3f} "
+    print(f"balka-watch: {finding['latest_day']} failure rate {finding['latest']:.3f} "
           f"(mean {finding['mean']:.3f}, sigma {finding['sigma']:.3f}) -> {action}"
           + (f" [{band_name}]" if band_name else ""))
     if finding["rule"]:
-        print(f"sdlc-watch: rule tripped — {finding['rule']}")
+        print(f"balka-watch: rule tripped — {finding['rule']}")
 
     if args.github_output:
         with open(args.github_output, "a", encoding="utf-8") as fh:
@@ -389,9 +389,9 @@ def main(argv=None) -> int:
             target = write_back(finding, band_name, args.repo, args.artifact_dir,
                                 args.intent_template, open_pr=(action == "propose_pr"))
         except WatchError as exc:
-            print(f"sdlc-watch: {exc}", file=sys.stderr)
+            print(f"balka-watch: {exc}", file=sys.stderr)
             return 2
-        print(f"sdlc-watch: diagnosis written to {target}")
+        print(f"balka-watch: diagnosis written to {target}")
 
     return 0
 

@@ -1,6 +1,6 @@
 # Review policy
 
-Applied by Copilot code review on every pull request, and by `/sdlc-loop:deploy`
+Applied by Copilot code review on every pull request, and by `/balka:deploy`
 when it addresses the findings. Owner: <name>.
 
 The agent that wrote the code does not approve it. Review the diff; do not run

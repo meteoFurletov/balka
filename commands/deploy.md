@@ -10,9 +10,9 @@ If that is empty, use `<artifactDir>/CURRENT`.
 
 ## Before anything
 
-Read `.claude/sdlc.json` at the git root. If it is absent, say that this repo has
-not run `/sdlc-loop:init` and that the hooks are inert here, then continue with
-the defaults `artifactDir: docs/sdlc`, `scenarioGlobs: ["features/**/*.feature"]`
+Read `.claude/balka.json` at the git root. If it is absent, say that this repo has
+not run `/balka:init` and that the hooks are inert here, then continue with
+the defaults `artifactDir: docs/balka`, `scenarioGlobs: ["features/**/*.feature"]`
 and no facts document.
 
 Artefacts live one directory per change: `<artifactDir>/<NNN>-<slug>/`, with
@@ -28,7 +28,7 @@ it. If a name you need is missing there, ask, and add it there first.
 
 Read `${CLAUDE_PLUGIN_ROOT}/templates/<name>`. If that path does not exist, fall
 back to the install path from
-`jq -r '(.plugins // .) | to_entries[]|select(.key|startswith("sdlc-loop@"))|.value[0].installPath' ~/.claude/plugins/installed_plugins.json`
+`jq -r '(.plugins // .) | to_entries[]|select(.key|startswith("balka@"))|.value[0].installPath' ~/.claude/plugins/installed_plugins.json`
 plus `/templates/<name>`. If both fail, say so and stop. Never write a template
 from memory — re-deriving it by hand is the drift this plugin exists to stop.
 
@@ -39,7 +39,7 @@ review is for code the loop has already verified. `gh` is on PATH and
 authenticated. If it is not, run the passes yourself (below) and say the
 separation of duties did not hold for this change.
 
-Read `deploy` in `.claude/sdlc.json`: `"pr"` means everything below;
+Read `deploy` in `.claude/balka.json`: `"pr"` means everything below;
 `"manual"` means skip the pull request and only print how the change lands.
 
 ## The pull request
@@ -69,7 +69,7 @@ the scenarios, which outrank it. For each:
 - **Record a departure** when the fix is right but outside the plan's approach
   or file list: one line under Departures in `plan.md`, staged with the fix.
 - **Stop** when a comment asks for a `.feature` file, a Then assertion or the
-  spec to change. That is the owner's call through `/sdlc-loop:spec`; say so on
+  spec to change. That is the owner's call through `/balka:spec`; say so on
   the thread and to the owner.
 
 Repeat until the review returns no new comments, or the owner calls it.
@@ -77,7 +77,7 @@ Repeat until the review returns no new comments, or the owner calls it.
 ## The gate, and how the change lands
 
 Merging is the code owner's. So is anything that matches the deploy patterns
-under `gate` in `.claude/sdlc.json`: the `deploy-gate` hook asks the named
+under `gate` in `.claude/balka.json`: the `deploy-gate` hook asks the named
 approver before such a command runs, and this command never argues with it.
 
 Finish by printing the **How changes land** section of the facts document —
