@@ -18,6 +18,7 @@ templates/       the twelve shipped artefacts, read via ${CLAUDE_PLUGIN_ROOT}
 hooks/           hooks.json registers all four; each is inert without opt-in
 scripts/watch.py the Stage 6 detector — stdlib + gh, no model in the path
 scripts/claim.sh one change, one main agent: reserves change numbers
+scripts/board.py the board: every change in every worktree, served locally
 tests/run.sh     every hook blocking and silent, every detection rule; no network
 ```
 
@@ -51,6 +52,7 @@ The stages are the playbook's, numbered as it numbers them.
 | 4 Test | `/balka:test` | nothing — a fix or a stop, then `Status: built` | a verifier that did not write the code |
 | 5 Deploy | `/balka:deploy` | the pull request, fixes from its review | Copilot code review; the code owner merges |
 | 6 Maintain | `/balka:watch` | `bands.yaml`, the detector | a metric breach becomes a draft `intent.md` |
+| any | `/balka:board` | nothing — a live kanban of every change | — |
 | any | `/balka:verify` | the `verify` block in `.claude/balka.json` | — |
 | any | `/balka:reflect` | the change list for the next version | the owner routes each item |
 
@@ -96,6 +98,23 @@ for that: in the Claude desktop app, start a session with **worktree** on, or ru
   `cwd`, not the checkout the session started in.
 - After the merge, archive the session. The app removes the worktree and its
   branch, and the claim lapses with it.
+
+## Board
+
+`/balka:board` opens a live kanban of every change in the repo, across every
+worktree, in the desktop app's Browser pane; anywhere else it prints the board
+as markdown. It reads the `Status:` lines, the claims and the pull requests from
+`gh` on every refresh and writes nothing, so parallel agents have nothing to
+contend over.
+
+Cards cannot be dragged. A card moves when its stage finishes and the owner
+accepts it, so each card offers its next command instead: a copy button, and a
+`claude-cli://` link that opens a terminal session in that change's worktree
+with the command typed.
+
+The first run adds a `balka-board` entry to `.claude/launch.json`. It finds the
+plugin when it runs, so it is safe to commit, and from then on the board is in
+the session toolbar's server menu.
 
 ## The facts document
 

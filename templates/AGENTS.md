@@ -13,6 +13,7 @@ its own branch with one main agent.
 | 4 Test | `/balka:test` | nothing; a fix or a stop, then `Status: built` |
 | 5 Deploy | `/balka:deploy` | the pull request, fixes from its review |
 | 6 Maintain | `/balka:watch` | `bands.yaml`, the detector |
+| any | `/balka:board` | nothing; every change and its next step |
 
 Read `<facts-doc>` before drafting anything: it holds the estate's real names,
 the facts the code does not say, and how changes land. A correction that

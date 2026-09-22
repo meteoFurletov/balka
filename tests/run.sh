@@ -176,6 +176,47 @@ check "a claim whose worktree is gone is taken over" 0 "$(code "$REPO" check doc
 git -C "$REPO" worktree prune
 
 echo
+echo "board"
+BOARD="$PLUGIN/scripts/board.py"
+B="$TMP/board"; BW="$TMP/board-wt"
+mkdir -p "$B/.claude"; git -C "$B" init -q -b main .
+git -C "$B" config user.email t@t; git -C "$B" config user.name t
+cp "$PLUGIN/templates/balka.json" "$B/.claude/balka.json"
+art() {  # art <checkout> <change> <artefact> <status>
+  mkdir -p "$1/docs/balka/$2"
+  printf '# Intent: %s\n\nOwner: t. Status: %s.\n' "$2" "$4" > "$1/docs/balka/$2/$3.md"
+}
+art "$B" 001-done intent accepted; art "$B" 001-done spec accepted; art "$B" 001-done plan built
+art "$B" 002-draft intent draft
+art "$B" 003-design intent draft
+art "$B" 005-parked intent parked
+git -C "$B" add -A; git -C "$B" commit -q -m base
+git -C "$B" worktree add -q "$BW" -b feat
+art "$BW" 003-design intent accepted
+art "$BW" 004-build intent accepted; art "$BW" 004-build spec accepted; art "$BW" 004-build plan accepted
+claim "$BW" check docs/balka 004-build >/dev/null
+bj() { python3 "$BOARD" --repo "$B" --json --no-gh | jq -r --arg id "$1" ".changes[] | select(.id == \$id) | $2"; }
+check "a built plan on the default branch is done"       done   "$(bj 001-done .column)"
+check "a draft intent waits in Intent"                  intent "$(bj 002-draft .column)"
+check "the worktree's copy speaks over the default's"   design "$(bj 003-design .column)"
+check "an accepted plan in a worktree is in Build"      build  "$(bj 004-build .column)"
+check "a parked intent leaves the columns"              parked "$(bj 005-parked .column)"
+check "a card names the worktree it lives in"           board-wt "$(bj 004-build .worktree.name)"
+check "a card names the claim's owner"                  "$(cd "$BW" && git rev-parse --show-toplevel)" "$(bj 004-build .owner)"
+check "the next step is the next stage's command"       "/balka:spec 003-design" "$(bj 003-design .next.cmd)"
+check "the text board lists Build"                      yes \
+  "$(python3 "$BOARD" --repo "$B" --text --no-gh | grep -q '^- `004-build`' && echo yes || echo no)"
+BPORT=$((20000 + RANDOM % 20000))
+python3 "$BOARD" --repo "$B" --no-gh --port "$BPORT" >/dev/null 2>&1 & BPID=$!
+fetch() { python3 -c "import sys, urllib.request; print(urllib.request.urlopen(sys.argv[1], timeout=1).read().decode())" "$1" 2>/dev/null; }
+for _ in $(seq 30); do fetch "http://127.0.0.1:$BPORT/api/board" >/dev/null && break; sleep 0.1; done
+check "the server answers with the board state"         board \
+  "$(fetch "http://127.0.0.1:$BPORT/api/board" | jq -r .repo)"
+check "the server serves the page"                      yes \
+  "$(fetch "http://127.0.0.1:$BPORT/" | grep -q '<title>balka board</title>' && echo yes || echo no)"
+kill "$BPID" 2>/dev/null; wait "$BPID" 2>/dev/null
+
+echo
 echo "watch.py"
 WATCH="$PLUGIN/scripts/watch.py"
 BANDS="$PLUGIN/templates/bands.yaml"
