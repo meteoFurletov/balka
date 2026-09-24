@@ -3,7 +3,11 @@
 # Every hook is registered by the plugin in every session and is inert in any
 # repo that has not opted in. Opting in is one file: .claude/balka.json.
 #
-# Two rules hold throughout:
+# Three rules hold throughout:
+#   - Git is the history. A hook never leaves deleting, recreating or renaming a
+#     file as the only way through: that erases the history it exists to keep.
+#     When a hook blocks work that is right, the hook is wrong, and the fix
+#     belongs in balka.
 #   - A hook that cannot establish its condition allows the action and says why.
 #     Ambiguity never blocks.
 #   - Nothing ever emits permissionDecision "allow". An explicit allow from a
@@ -106,4 +110,21 @@ balka_relpath() {
     /*)             return 1 ;;
   esac
   printf '%s' "${path#./}"
+}
+
+# The design transition is open while a change's spec.md is in draft: that is
+# when scenarios change, in place, and at no other time. Prints that spec.md;
+# returns 1 when every spec is settled.
+balka_open_spec() {
+  local dir f
+  dir=$(printf '%s' "$BALKA_CONFIG" | jq -r '.artifactDir // empty')
+  [ -n "$dir" ] || return 1
+  for f in "$BALKA_PROJ/$dir"/*/spec.md; do
+    [ -f "$f" ] || continue
+    if grep -m1 -oE 'Status:[[:space:]]*[a-z]+' "$f" | grep -q 'draft$'; then
+      printf '%s' "${f#"$BALKA_PROJ"/}"
+      return 0
+    fi
+  done
+  return 1
 }

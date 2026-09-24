@@ -136,6 +136,14 @@ that it did not.
 Unit tests are the opposite: implementation detail, free to churn, and never
 evidence on their own that a scenario holds.
 
+**Git is the history.** A scenario that changes is edited in place during the
+design transition, so its history and the review diff stay whole. The design
+transition is open while a change's `spec.md` is in draft; outside it, the hooks
+block an edit, deletion or rename of an existing `.feature` file, through the
+editor or through `rm`, `mv`, `git rm` and `git mv` alike. No rule in balka may
+leave deleting and recreating a file as the way through. When one does, that is
+a bug in balka, and it is fixed in balka, not worked around in the repo.
+
 ## Test produces a fix or a stop
 
 The verifier is a subagent with a fresh context. It checks the spec against the
@@ -163,7 +171,7 @@ opted-in repo at once — no copies to drift.
 
 | Hook | Fires on | Blocks |
 | --- | --- | --- |
-| `protect-scenarios` | `Edit`/`Write`/`MultiEdit` | A write over an **existing** `.feature` file. New ones pass. |
+| `protect-scenarios` | `Edit`/`Write`/`MultiEdit`, and `rm`/`mv`/`git rm`/`git mv` | An edit, overwrite, deletion or rename of an **existing** `.feature` file, unless a change's `spec.md` is in draft. New ones pass. |
 | `scenario-commit` | `Bash`, `git commit` | A commit that modifies, deletes or renames an existing `.feature` file, unless a change's `spec.md` is staged with it. New files pass. |
 | `plan-sync` | `Bash`, `git commit` | A commit no single accepted `plan.md` covers in its *Files that change*, unless a `plan.md` is staged with it. |
 | `deploy-gate` | `Bash` | Nothing — it *asks*. Only active once `init --gate` writes a `gate` object. |

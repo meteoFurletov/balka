@@ -1,7 +1,7 @@
 ---
 description: Stage 2, Design — turn an accepted intent.md into spec.md, the Gherkin .feature files that are the contract, and their bindings written red.
 argument-hint: [optional — the change directory to work in]
-allowed-tools: Read, Write, Glob, Grep, Bash(date:*), Bash(jq:*), Bash(git rm:*), Bash(git status:*), Bash(git diff:*), Bash(git merge-base:*), Bash(git add:*), Bash(git commit:*), Bash(ls:*), Skill, AskUserQuestion
+allowed-tools: Read, Write, Glob, Grep, Bash(date:*), Bash(jq:*), Bash(git status:*), Bash(git diff:*), Bash(git merge-base:*), Bash(git add:*), Bash(git commit:*), Bash(ls:*), Skill, AskUserQuestion
 ---
 
 Write `spec.md`, its `.feature` files and their bindings. Change: $ARGUMENTS
@@ -42,6 +42,11 @@ plus `/templates/<name>`. If both fail, say so and stop. Never write a template
 from memory — re-deriving it by hand is the drift this plugin exists to stop.
 
 ## Writing it
+
+**Open the design transition first.** Before touching any `.feature` file,
+write `spec.md` from its template with `Status: draft`. A draft spec is what
+tells the hooks the contract may move, so it is the one thing written before
+the owner has read it. It closes when the owner accepts.
 
 Read the change's `intent.md`. If it is missing, or its status is not
 `accepted`, say so and stop — a spec written against an unaccepted intent
@@ -89,12 +94,15 @@ Build changes glue, never assertions, and Test checks that it did not. Where
 there is no runner, write no bindings and say so: the `.feature` files are then
 the acceptance checklist the verifier reads by hand.
 
-**Replacing an existing scenario.** The `protect-scenarios` hook blocks writes
-over an existing `.feature` file, including here. To replace one, `git rm` it
-and write a fresh file. The commit that carries it must also carry this
-change's `spec.md`; the `scenario-commit` hook blocks it otherwise, whatever
-tool wrote the file. That is deliberate: it leaves a visible delete+add next to
-the spec in the diff, which is what review looks for.
+**Changing an existing scenario.** Edit it in place. Never delete it and write
+a fresh file, and never rename or copy it to start over: git is where a
+scenario's history lives, and review reads the change as a diff of that history.
+The `protect-scenarios` hook allows the edit because this change's `spec.md` is
+in draft; the commit that carries it must also carry `spec.md`, or
+`scenario-commit` blocks it. Delete a scenario only when the behaviour it
+describes is gone, and say so in `spec.md`. If a hook blocks something here
+that is right, stop and tell the owner: that is a bug in balka, and it goes to
+`PROPOSALS.md`, not around the hook.
 
 Size comes from scope, not from cutting. The budget below is a signal: if a
 draft is over it, say so and say why, and offer to split rather than trimming
@@ -111,7 +119,8 @@ Markdown artefacts are shown by path, never pasted: the owner reads the file.
 `.feature` files are the exception and are printed in full, one file at a time,
 in a fenced `gherkin` block, every scenario included. Acceptance is the word
 "accepted" from the owner; an answer to a scoped question is not acceptance, and
-neither is silence. Write nothing to disk that the owner has not seen.
+neither is silence. Beyond the draft header, write nothing to disk that the
+owner has not seen.
 
 After every `.feature` file has been through, print all of them once more in
 full, then the path of the spec, and ask whether it is accepted. When it is, set

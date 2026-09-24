@@ -78,6 +78,21 @@ mv "$REPO/.claude/off.json" "$REPO/.claude/sdlc.json"
 check "the pre-rename sdlc.json marker still opts in" deny \
   "$(hook protect-scenarios.sh "{\"tool_name\":\"Edit\",\"tool_input\":{\"file_path\":\"$REPO/features/login.feature\"}}")"
 mv "$REPO/.claude/sdlc.json" "$REPO/.claude/balka.json"
+bash_hook() { hook protect-scenarios.sh "{\"cwd\":\"$REPO\",\"tool_name\":\"Bash\",\"tool_input\":{\"command\":\"$1\"}}"; }
+check "git rm of a scenario is denied"            deny   "$(bash_hook 'git rm features/login.feature')"
+check "rm of a scenario is denied"                deny   "$(bash_hook 'rm -f features/login.feature')"
+check "git mv of a scenario is denied"            deny   "$(bash_hook 'git -C . mv features/login.feature features/old.feature')"
+check "rm of a non-scenario is silent"            silent "$(bash_hook 'rm src/rogue.py')"
+check "a commit message naming a scenario is silent" silent \
+  "$(bash_hook 'git commit -m features/login.feature')"
+printf '# Spec\n\nOwner: t. Status: draft.\n' > "$REPO/docs/balka/001-login/spec.md"
+check "an open design lets a scenario be edited in place" silent \
+  "$(hook protect-scenarios.sh "{\"tool_name\":\"Edit\",\"tool_input\":{\"file_path\":\"$REPO/features/login.feature\"}}")"
+check "an open design lets a scenario go"         silent "$(bash_hook 'git rm features/login.feature')"
+sed -i 's/Status: draft/Status: accepted/' "$REPO/docs/balka/001-login/spec.md"
+check "an accepted spec closes the design again"  deny \
+  "$(hook protect-scenarios.sh "{\"tool_name\":\"Edit\",\"tool_input\":{\"file_path\":\"$REPO/features/login.feature\"}}")"
+rm "$REPO/docs/balka/001-login/spec.md"
 
 echo
 echo "plan-sync"

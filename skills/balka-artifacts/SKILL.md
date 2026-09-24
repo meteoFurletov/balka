@@ -62,10 +62,18 @@ accepts it and moves the work on. If you do not know who, ask.
 **Status is one word** from: draft, accepted, split, parked, rejected, built. A
 parked or rejected artefact carries one line saying why and is never deleted.
 
+**Git is the history.** Artefacts and scenarios change in place. Never delete
+and recreate, rename or copy a file to get past a hook or a rule: the history
+lives in git, and a workaround erases it. When balka's own rules leave no other
+route, that is a bug in balka: stop, tell the owner, and record it in
+`PROPOSALS.md` for `/balka:reflect`.
+
 **Scenarios are the contract.** `.feature` files and the `Then` assertions in
-their bindings change at the design transition and nowhere else. Two hooks hold
-that: one blocks an edit to an existing `.feature` file, one blocks a commit
-that moves a `.feature` file without that change's `spec.md`. New behaviour
+their bindings change at the design transition — while the change's `spec.md`
+is in draft — and nowhere else, edited in place. Two hooks hold that: one
+blocks an edit, deletion or rename of an existing `.feature` file outside the
+design transition, one blocks a commit that moves a `.feature` file without a
+`spec.md`. New behaviour
 gets a new scenario at the design transition — never during Build, and never
 edited to match what the code turned out to do. Binding glue, unit tests and
 fixtures are the opposite: implementation detail, free to churn, and never

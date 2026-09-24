@@ -5,6 +5,9 @@ plugin. What it does and how it works is in `README.md`; do not restate it here.
 
 - Distributed through the `meteof-skills` marketplace in `../skills`, which lists
   this repo by GitHub source. A release needs no change there.
+- Git is the history. No hook, command or template may leave an agent a route
+  that deletes, recreates or renames a file to get something done. When one
+  does, fix balka's logic; never document the workaround.
 - Bump `version` in `.claude-plugin/plugin.json` on every release.
 - Validate before committing: `claude plugin validate .`
 - Tests: `bash tests/run.sh`. No network, no `gh`.

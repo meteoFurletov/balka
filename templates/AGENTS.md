@@ -16,7 +16,13 @@ its own branch with one main agent.
 | any | `/balka:board` | nothing; every change and its next step |
 
 Read `<facts-doc>` before drafting anything: it holds the estate's real names,
-the facts the code does not say, and how changes land. A correction that
+the facts the code does not say, and how changes land.
+
+Git is the history. Change artefacts and scenarios in place; never delete,
+recreate, rename or copy a file to get past a balka hook or rule. If balka
+blocks work that is right, stop and tell the owner: that is a bug in balka.
+
+A correction that
 repeats goes to `<artifacts-dir>/PROPOSALS.md`, and `/balka:reflect` turns
 that inbox into the next version of the loop.
 
