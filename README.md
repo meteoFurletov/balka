@@ -127,7 +127,9 @@ spells a system differently from that file is wrong before the owner reads it.
 
 The design transition turns each plain-words behaviour from the intent into a
 Gherkin `.feature` file, in production's words, and — where the repo has a
-runner — writes the step definitions at the same time, red. Each `Then` asserts
+runner — writes the step definitions at the same time, red. The steps are
+written about 80% of the way to ASD-STE100, Simplified Technical English: short,
+active, one idea each, one word for each thing. Each `Then` asserts
 the observable result; `Given` and `When` reach code that may not exist yet.
 Build's job is to turn them green by changing code and binding glue, never an
 assertion. Test's verifier diffs the bindings against the design commit to see

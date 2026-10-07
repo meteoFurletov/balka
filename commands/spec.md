@@ -81,6 +81,50 @@ behaviour from the intent into Gherkin in a `.feature` file committed alongside:
 - Where the intent declares no scenario changes, record that in `spec.md`, write
   no `.feature` file, and note the existing scenarios must still pass.
 
+**Write every step to be read.** The owner reads every scenario in full, so
+write them about 80% of the way to ASD-STE100, the Simplified Technical English
+of aircraft maintenance manuals. Keep these rules:
+
+- One word, one meaning. Call a thing by the same name in every step and every
+  scenario. Never change the word for variety.
+- One idea per step. If a step needs "and", "which" or "so that", make it two
+  steps.
+- Short steps: about 15 words, and about 10 in a scenario name.
+- Active voice, present tense. Name who acts: "the scheduler sends the report",
+  not "the report is sent".
+- Keep the articles. A step is a sentence, not a note: "the order has the status
+  shipped", not "order status shipped".
+- No more than three nouns in a row: "the retry limit of the export", not "the
+  export job retry count limit".
+- Concrete values: "3 failed logins", not "several failed logins"; "within 5
+  minutes", not "promptly".
+- Plain verbs that say what changes: send, show, stop, keep. Not handle,
+  process, manage or leverage.
+- At most one "not" in a step, and never two negatives.
+
+Where this is softer than ASD-STE100: the facts document is the dictionary, not
+the STE word list; the word counts are aims, not limits; a term the owner uses
+every day stays even if STE has no entry for it.
+
+```gherkin
+# Hard to read
+Scenario: Handling of retry exhaustion for failed exports
+  Given an export job configured with max retries and backoff enabled
+  When the job fails repeatedly and retries are exhausted
+  Then a notification is sent and the job is marked as failed and not requeued
+
+# Easy to read
+Scenario: The export stops after 3 failures
+  Given the nightly export has failed 2 times
+  When the nightly export fails again
+  Then the nightly export has the status failed
+  And the data team gets an email about the failure
+  And the scheduler does not start the nightly export again
+```
+
+Before you show a `.feature` file, read each step against these rules and
+rewrite the steps that break them.
+
 **Bindings are written here, red.** Where `verify.scenarios` in
 `.claude/balka.json` names a runner, write the step definitions for each new
 `.feature` file now, in that runner, following the conventions the repo's

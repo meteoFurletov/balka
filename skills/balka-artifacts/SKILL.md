@@ -80,7 +80,10 @@ fixtures are the opposite: implementation detail, free to churn, and never
 evidence on their own that a scenario holds.
 
 **Gherkin in production's words.** Every noun is a real name. A scenario the
-owner cannot read without a glossary is a finding against the scenario.
+owner cannot read without a glossary is a finding against the scenario. Each
+step follows the writing rules in `${CLAUDE_PLUGIN_ROOT}/commands/spec.md`
+under "Write every step to be read": about 80% of ASD-STE100. Read them before
+writing a step.
 
 **A change with no scenarios is first class.** Refactors, dependency bumps and
 performance work say "No scenario changes. The existing scenarios must still
