@@ -2,24 +2,22 @@
 
 The six-stage AI-native SDLC playbook carried as a Claude Code plugin, so the
 process is fixed in one place instead of re-derived by hand in every repo.
-Commands for the stage transitions, two skills for when nobody types a command,
+Commands for the stage transitions, a skill for when nobody types a command,
 four hooks for the rules that must hold rather than be advised, and a reflect
 step that turns what a repo learned into the next version of the loop.
 
 Project-agnostic: no language, stack, framework or domain assumption anywhere in
-it. All state is plain markdown, Gherkin and YAML in the project's own git.
+it. All state is plain markdown, Gherkin and JSON in the project's own git.
 
 ```
 commands/        one per stage transition, plus init, verify and reflect
 skills/
-  balka-artifacts        the house rules, for prose asks
-  balka-watch-writeback  the headless Stage 6 diagnosis
-templates/       the twelve shipped artefacts, read via ${CLAUDE_PLUGIN_ROOT}
+  balka-artifacts  the house rules, for prose asks
+templates/       the eleven shipped artefacts, read via ${CLAUDE_PLUGIN_ROOT}
 hooks/           hooks.json registers all four; each is inert without opt-in
-scripts/watch.py the Stage 6 detector — stdlib + gh, no model in the path
 scripts/claim.sh one change, one main agent: reserves change numbers
 scripts/board.py the board: every change in every worktree, served locally
-tests/run.sh     every hook blocking and silent, every detection rule; no network
+tests/run.sh     every hook blocking and silent, and the board; no network
 ```
 
 ## Install
@@ -35,8 +33,8 @@ Then, in a repo you want to run the loop in:
 /balka:init
 ```
 
-`init` writes an opt-in marker, the facts document, the proposals inbox, a
-starter `AGENTS.md` block and the review policy. It merges with what is there
+`init` writes an opt-in marker, the facts document, the watch list, the
+proposals inbox, a starter `AGENTS.md` block and the review policy. It merges with what is there
 and never overwrites; on a conflict it reports and stops. Adopt one play at a
 time with `--artifacts`, `--hooks`, `--gate` and `--watch`.
 
@@ -47,11 +45,11 @@ The stages are the playbook's, numbered as it numbers them.
 | Stage | Command | Writes | Gate |
 | --- | --- | --- | --- |
 | 1 Plan | `/balka:intent` | `intent.md` | the owner says accepted |
-| 2 Design | `/balka:spec` | `spec.md`, `.feature` files, bindings written red | the owner reads every scenario in full |
+| 2 Design | `/balka:spec` | `spec.md`, `.feature` files, bindings written red, the Watch entries | the owner reads every scenario in full and chooses how each thing that runs is watched |
 | 3 Build | `/balka:plan`, then `/balka:build` | `plan.md`, code | the owner's read of the plan; then nothing until green |
 | 4 Test | `/balka:test` | nothing — a fix or a stop, then `Status: built` | a verifier that did not write the code |
 | 5 Deploy | `/balka:deploy` | the pull request, fixes from its review | Copilot code review; the code owner merges |
-| 6 Maintain | `/balka:watch` | `bands.yaml`, the detector | a metric breach becomes a draft `intent.md` |
+| 6 Maintain | the project's own checks; `/balka:watch` for what ran before balka | the watch list | a failed check calls the chosen agent, which writes a draft `intent.md` |
 | any | `/balka:board` | nothing — a live kanban of every change | — |
 | any | `/balka:verify` | the `verify` block in `.claude/balka.json` | — |
 | any | `/balka:reflect` | the change list for the next version | the owner routes each item |
@@ -62,7 +60,9 @@ flowchart LR
   I[1 intent.md] --> S[2 spec.md + .feature + red bindings] --> P[3 plan.md] --> B[3 build until green] --> T[4 verifier] --> D[5 PR + Copilot review]
   T -. findings .-> B
   I -. split .-> I
-  D --> M[6 breach → intent.md] -.-> I
+  S -. Watch entry .-> W[watch list]
+  D --> M[6 check fails → responder → intent.md] -.-> I
+  W -.-> M
   R[PROPOSALS.md → reflect] -.-> next[next version]
 ```
 
@@ -201,13 +201,13 @@ intent, and a gate that guesses is a gate that gets switched off.
 | --- | --- |
 | `version` | `2`. `init --hooks` upgrades a version 1 file in place. |
 | `artifactDir` | Where change directories live. Default `docs/balka`. |
-| `artifactPaths` | Globs `plan-sync` never requires a plan entry for. Must include the facts document, `AGENTS.md`, `CLAUDE.md`, `REVIEW.md` and `.github/copilot-instructions.md`, which are artefacts living outside the artefact directory. |
+| `artifactPaths` | Globs `plan-sync` never requires a plan entry for. Must include the facts document, the watch list, `AGENTS.md`, `CLAUDE.md`, `REVIEW.md` and `.github/copilot-instructions.md`, which are artefacts living outside the artefact directory. |
 | `scenarioGlobs` | What the two scenario hooks protect. |
 | `facts` | The facts document. Default `docs/estate.md`. |
+| `watchList` | The watch list. Default `docs/watch.md`. |
 | `verify` | The `build`, `test`, `lint` and `scenarios` commands, written by `/balka:verify`. `null` means no such check; `scenarios: null` means no runner and the `.feature` files are the checklist the verifier reads by hand. |
 | `deploy` | `"pr"` opens a pull request and runs the review loop; `"manual"` only prints how the change lands. |
 | `gate` | Absent unless `init --gate` ran. Holds `approver` and `deployPatterns`. |
-| `watch` | Absent unless `init --watch` ran. |
 
 Globs take `*`, `?` and `**`. Brace expansion is not supported. `deployPatterns`
 are shell globs matched against a command line, so `*` crosses `/` there.
@@ -224,29 +224,44 @@ pick them up. Nothing is ever deleted from that file.
 
 ## Stage 6
 
-`scripts/watch.py` pulls CI history with `gh`, computes a daily failure rate, and
-applies Western Electric rules over a rolling mean and standard deviation,
-matched against a version-controlled `bands.yaml`. No model runs in the detection
-path. 1σ logs; 2σ invokes Claude read-only to diagnose and writes the result back
-as a draft `intent.md`; 3σ additionally opens a PR carrying it.
+Whatever the loop builds must be maintained, and when it breaks an agent must be
+able to help. balka cannot know what "working" means in every project: fresh rows
+in a warehouse, a page that answers, a file that arrives. So it ships no detector.
+It asks, and each project answers in its own terms.
 
-Detection is one-sided — CI becoming more reliable is not an incident — and a
-flat line short-circuits rather than dividing by a zero standard deviation.
+**The question comes before the merge.** At the design transition, for each
+thing the change adds or alters that runs on its own, `/balka:spec` asks how we
+know it keeps running and which agent helps when it breaks. It proposes two or
+three ways to watch it that fit this project, recommends one, and the owner
+chooses: the check, how the loop sees it fail on a broken input, which agent
+responds (Claude Code, GitHub Copilot or another), what calls it, and what it
+may do. CI is deliberately not the default answer: a green pipeline shows that
+the code built, not that the thing works where it runs.
 
-`bands.yaml` is read by a restricted parser, because python3 stdlib has no YAML.
-The shipped file states the subset it may use in its first comment.
+The choice is a section of `spec.md`, so the rest of the loop carries it. The
+plan lists the check and its red proof, Build writes them, the verifier checks
+that the check exists and can fail, and the check ships in the same pull request
+as the thing it watches. `/balka:deploy` prints what it needs wired up where it
+runs.
 
-The diagnosis run gets no write tools, and the script compares `git status`
-before and after, reverting if anything else moved. "Writes back an intent and
-nothing else" is not something prompting can guarantee.
+**The watch list** (`docs/watch.md`) holds one entry per thing the project runs,
+with git as its history. `/balka:watch` fills it for what was running before the
+project adopted balka; a missing check becomes a change of its own.
 
-`init --watch` requires `gh`, at least 30 calendar days of CI history **and** at
-least 20 days carrying 3 or more runs, and refuses otherwise rather than
-installing a detector with no stable baseline. A repo with no CI skips this
-stage and says so in its `AGENTS.md`.
+**When a check fails**, the project's own scheduler, hook or workflow calls the
+responder the entry names. The responder follows "When something breaks" at the
+top of the watch list: read the entry and the facts document, do only what the
+entry allows (`diagnose`, `propose`, or one named `runbook` step), never fix or
+deploy, and write one draft `intent.md` carrying `Watch: <entry>`. A check that
+fails again adds to that open change instead of starting another. Detection
+stays deterministic and the project's own; no model runs until a check fails.
 
-Stage 6 is the one part of this plugin copied into the project — GitHub Actions
-cannot see your plugin cache. Re-run `/balka:watch` after upgrading.
+Those rules sit in the project's repo, between `balka:` markers, because every
+responder reads them there whatever tool it is. Re-run `/balka:init --artifacts`
+after upgrading to bring them up to date.
+
+Until 0.7 balka shipped a CI failure-rate detector. `/balka:init` offers to
+remove its copied files from a repo that has them.
 
 ## Tests
 
@@ -255,12 +270,12 @@ bash tests/run.sh
 ```
 
 A scratch git repo per case, no network and no `gh`. Every hook is exercised both
-blocking and staying silent, and every detection rule in isolation.
+blocking and staying silent.
 
 ## Requirements
 
-`bash` and `jq` for the hooks. `python3` (stdlib only) and `gh` for the watcher
-and the deploy stage. Copilot code review on the GitHub account for the review
+`bash` and `jq` for the hooks. `python3` (stdlib only) for the board, and `gh`
+for the board's pull requests and the deploy stage. Copilot code review on the GitHub account for the review
 loop.
 
 ## History

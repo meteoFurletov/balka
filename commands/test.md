@@ -63,6 +63,11 @@ findings ranked by severity, or says clearly that it found none. Its checks:
    under Non-goals that landed is a finding.
 4. **Plan against reality.** Files touched but absent from the plan's list and
    its Departures.
+5. **Watch.** Each entry under Watch in `spec.md` is in the watch list as the
+   spec states it, its check exists in the diff, and its red proof feeds the
+   check a broken input and expects it to fail. A check that can only pass is
+   a finding. "Nothing new runs" against a diff that adds a job, a schedule or
+   a service is a finding against the spec.
 
 ## What happens with findings
 

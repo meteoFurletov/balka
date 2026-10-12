@@ -1,21 +1,24 @@
 ---
-description: Stage 6 — scaffold the CI failure-rate detector into this repo: bands.yaml, the watcher script and a scheduled workflow.
-argument-hint: [optional — cron schedule, e.g. "0 6 * * *"]
-allowed-tools: Read, Write, Glob, Grep, Bash, Skill, AskUserQuestion
+description: Stage 6, Maintain — ask how each thing this project already runs is known to keep working and which agent helps when it breaks, and record the owner's answers in the watch list.
+argument-hint: [optional — what to watch, e.g. "the nightly export"]
+allowed-tools: Read, Write, Edit, Glob, Grep, Bash(date:*), Bash(jq:*), Bash(git log:*), Bash(git status:*), Bash(git add:*), Bash(git commit:*), Bash(ls:*), Skill, AskUserQuestion
 ---
 
-Scaffold the Stage 6 detector. Schedule: $ARGUMENTS (default `0 6 * * *`)
+Fill the watch list for what this project already runs. Scope: $ARGUMENTS
 
-## Preconditions
+New work gets its watch entries at the design transition, in `spec.md` under
+Watch, and ships them with the change. This command is for everything that was
+running before that: a repo that adopts balka late, or a job nobody wrote an
+entry for.
 
-Check both and refuse clearly if either fails. A detector with no stable baseline
-is worse than none, because it teaches people to ignore it.
+## Before anything
 
-1. `gh` is on PATH and authenticated (`gh auth status`).
-2. At least 30 calendar days of CI history, **and** at least 20 distinct days
-   carrying 3 or more runs. Check with
-   `gh run list --limit 300 --json conclusion,createdAt`. Either alone admits a
-   useless baseline. If it falls short, say by how much and stop.
+Read `.claude/balka.json` at the git root. If it is absent, say that this repo has
+not run `/balka:init` and stop: the watch list belongs to the loop.
+
+Read the facts document named by `facts`, and the watch list named by
+`watchList` (default `docs/watch.md`). If the watch list does not exist, write
+it from the `watch.md` template with the owner's name.
 
 ## Loading a template
 
@@ -25,29 +28,27 @@ back to the install path from
 plus `/templates/<name>`. If both fail, say so and stop. Never write a template
 from memory — re-deriving it by hand is the drift this plugin exists to stop.
 
-## Scaffolding
+## Asking
 
-Copy, never overwriting — report a collision and stop:
+List what this project runs on its own that the watch list does not cover:
+scheduled jobs, pipelines, services, anything the facts document or the code
+says runs without a person starting it. Show the list and let the owner strike
+or add to it. Within the scope above, if one was given.
 
-| From | To |
-| --- | --- |
-| `templates/bands.yaml` | `.balka/bands.yaml` |
-| `templates/intent.md` | `.balka/intent-template.md` |
-| `scripts/watch.py` | `scripts/balka-watch.py` |
-| `templates/balka-watch.yml` | `.github/workflows/balka-watch.yml` |
+For each thing that is left, ask the questions the design transition asks, in
+the same way: read `${CLAUDE_PLUGIN_ROOT}/commands/spec.md` under "Watch: how
+we know it keeps running" and follow it. Propose two or three ways to watch it,
+recommend one, and ask which agent responds, what calls it, and what it may do.
+The owner decides each one. Never pick for them.
 
-Substitute `artifactDir` for `<artifacts-dir>` in the workflow and set the cron.
-Record a `watch` object in `.claude/balka.json` carrying the paths and the
-`scriptVersion` header from `watch.py`.
+## Writing it
 
-Then take one live reading — run `scripts/balka-watch.py` once — so the owner
-sees the current mean and standard deviation before trusting the thing.
+Write one entry per thing in the watch list, in its format. Where the check
+already exists, name it. Where it does not, write `The check: none yet` and
+`Proven red by: none yet`: a check is code, and code goes through the loop.
+Offer to start that change now with `/balka:intent`, one change for all the
+missing checks unless the owner wants them apart.
 
-## What to tell the owner
-
-In a sentence each: detection is deterministic and no model runs in it; a
-2-sigma breach invokes Claude read-only and writes the result back as a draft
-`intent.md` for a human to claim; a 3-sigma breach also opens a PR carrying it;
-the workflow needs an `ANTHROPIC_API_KEY` repository secret before the diagnose
-step will run; and this is the one part of the plugin copied into the repo, so
-re-run `/balka:watch` after upgrading the plugin.
+Commit the watch list and print its path. Then print what each entry needs
+outside the repo before it can call its responder: a scheduler entry, a failure
+hook, a secret, the agent enabled on the repository.

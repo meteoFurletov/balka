@@ -17,6 +17,9 @@ tests or report that they pass — the Test stage already did that.
 - A step definition changed after the design commit must still assert the
   observable result. A weakened assertion is a finding of the highest severity.
 - Nothing landed that `spec.md` lists under Non-goals.
+- Each entry under Watch in `spec.md` is in the watch list, and its check is in
+  the diff. A diff that adds a job, a schedule or a service while the spec says
+  "Nothing new runs" is a finding.
 
 ## Correctness
 

@@ -23,6 +23,13 @@ scenarios each. Or: "No scenario changes. The existing scenarios must still pass
 
 - `<path>.feature` ← `<binding file>` — <the capability>
 
+## Watch
+
+<How we know what this change builds keeps running, and who helps when it
+breaks: one entry per thing that runs, in the watch list's format, as the owner
+chose it. An entry the change affects is copied with its new lines. Or:
+"Nothing new runs.">
+
 ## Design
 
 <How, at the level the plan needs and no further.>

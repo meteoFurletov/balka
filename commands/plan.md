@@ -71,6 +71,12 @@ Two sections earn their place by being read by something downstream:
   A path in another repo is listed under its own sub-heading and is not
   checked by the hook.
 
+Where `spec.md` has entries under Watch, the plan builds them like any other
+requirement: the check, whatever proves it red on a broken input, and the watch
+list itself are in Files that change. A check that cannot run before the merge,
+such as one against production data, still ships in this change, and its red
+proof is a test that feeds it a broken input.
+
 Size comes from scope, not from cutting. The budget below is a signal: if a
 draft is over it, say so and say why, and offer to split rather than trimming
 the words. Concision comes from the rules: one idea per sentence, no restating

@@ -12,11 +12,15 @@ its own branch with one main agent.
 | 3 Build | `/balka:plan`, then `/balka:build` | `plan.md`, code |
 | 4 Test | `/balka:test` | nothing; a fix or a stop, then `Status: built` |
 | 5 Deploy | `/balka:deploy` | the pull request, fixes from its review |
-| 6 Maintain | `/balka:watch` | `bands.yaml`, the detector |
+| 6 Maintain | `/balka:spec`, `/balka:watch` | the watch list |
 | any | `/balka:board` | nothing; every change and its next step |
 
 Read `<facts-doc>` before drafting anything: it holds the estate's real names,
 the facts the code does not say, and how changes land.
+
+Whatever the loop builds must be maintained. `<watch-list>` names each thing
+this project runs, how we know it works, and which agent responds when its
+check fails. If a check called you, follow "When something breaks" in that file.
 
 Git is the history. Change artefacts and scenarios in place; never delete,
 recreate, rename or copy a file to get past a balka hook or rule. If balka

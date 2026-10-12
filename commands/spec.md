@@ -138,6 +138,39 @@ Build changes glue, never assertions, and Test checks that it did not. Where
 there is no runner, write no bindings and say so: the `.feature` files are then
 the acceptance checklist the verifier reads by hand.
 
+**Watch: how we know it keeps running.** Whatever this change builds must be
+maintained, and when it breaks an agent must be able to help. So before the
+spec goes to the owner, answer two questions about each thing the change adds
+or alters that runs on its own: a job, a pipeline, a service, a schedule.
+
+1. How do we know it keeps running?
+2. When it breaks, which agent helps, and what calls it?
+
+Read the watch list named by `watchList` in `.claude/balka.json` (default
+`docs/watch.md`) first: an entry the change affects is updated, not duplicated.
+If the repo has no watch list yet, take the entry format from the `watch.md`
+template; Build writes the file.
+Then propose two or three ways to watch it that fit this project, from the facts
+document, the watch list and the code, and say which one you recommend and why.
+Each way names the check, how the loop will see it fail on a broken input, and
+what counts as broken. Watch the result the thing exists to produce: fresh rows
+in a table, a page that answers, a file that arrives. Do not lead with CI: a
+green pipeline shows that the code built, not that the thing works where it
+runs.
+
+Then ask which agent responds when the check fails. Offer what this owner
+already uses, such as Claude Code or GitHub Copilot, and what would call it:
+the scheduler's failure hook, a workflow, an issue assigned to the agent. Ask
+what that agent may do: `diagnose`, `propose`, or one named `runbook` step. An
+agent that can only answer with a pull request, such as Copilot's coding agent
+working from an assigned issue, needs `propose`.
+
+The owner picks one way, changes it, or gives their own. Ask with
+`AskUserQuestion`; never pick for them. Write the choice under Watch in
+`spec.md`, one entry per thing that runs, in the watch list's format. Where
+nothing in the change runs on its own, write "Nothing new runs." The check is
+work the plan must carry, like any requirement: give it a requirement line.
+
 **Changing an existing scenario.** Edit it in place. Never delete it and write
 a fresh file, and never rename or copy it to start over: git is where a
 scenario's history lives, and review reads the change as a diff of that history.

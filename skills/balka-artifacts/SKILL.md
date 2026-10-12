@@ -1,6 +1,6 @@
 ---
 name: balka-artifacts
-description: Use when writing or updating an SDLC artefact — intent.md, spec.md, plan.md, a Gherkin .feature file, the facts document or PROPOSALS.md — in a repo carrying .claude/balka.json, and no /balka command was typed. Covers the house rules those artefacts must follow (read the facts document first, link upstream instead of restating it, name one owner, size by scope not by cutting, scenarios and their Then assertions change only at the design transition), the status vocabulary, and where the shipped templates live so a command can find them. Triggers include "write the intent for this", "turn that into a spec", "add a scenario", "update the plan", "split this intent", "park this", "what should the spec say", "add this name to the estate". Do NOT use for ordinary READMEs or design docs outside the loop.
+description: Use when writing or updating an SDLC artefact — intent.md, spec.md, plan.md, a Gherkin .feature file, the facts document, the watch list or PROPOSALS.md — in a repo carrying .claude/balka.json, and no /balka command was typed. Covers the house rules those artefacts must follow (read the facts document first, link upstream instead of restating it, name one owner, size by scope not by cutting, scenarios and their Then assertions change only at the design transition), the status vocabulary, and where the shipped templates live so a command can find them. Triggers include "write the intent for this", "turn that into a spec", "add a scenario", "update the plan", "split this intent", "park this", "what should the spec say", "add this name to the estate". Do NOT use for ordinary READMEs or design docs outside the loop.
 ---
 
 # SDLC artefacts
@@ -27,13 +27,12 @@ templates/
   scenario.feature          Stage 2, one per capability
   plan.md                   Stage 3
   estate.md                 the facts document init writes
+  watch.md                  the watch list init writes, and the responder's rules
   PROPOSALS.md              the reflect inbox init writes
   AGENTS.md                 the starter block init merges into the project
   REVIEW.md                 the pointer at the review policy
   copilot-instructions.md   the review policy Copilot applies to every PR
-  bands.yaml                Stage 6 detection bands
-  balka.json                 the opt-in marker
-  balka-watch.yml            the scheduled detector workflow
+  balka.json                the opt-in marker
 ```
 
 Never reconstruct a template from memory. Re-deriving it by hand in each repo is
@@ -88,6 +87,12 @@ writing a step.
 **A change with no scenarios is first class.** Refactors, dependency bumps and
 performance work say "No scenario changes. The existing scenarios must still
 pass." and that is the whole requirement on them.
+
+**What runs is watched.** A change that adds or alters something that runs on
+its own carries an entry under Watch in `spec.md`: how we know it keeps
+running, and which agent responds when it breaks. The agent proposes the ways
+and the owner chooses; CI is not the default answer. The watch list, named by
+`watchList` in `.claude/balka.json`, holds the entries once they ship.
 
 ## Layout
 
