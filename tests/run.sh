@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
-# Hook and watcher tests. A scratch git repo per case, no network.
-# Every hook is exercised both blocking and staying silent, and every detection
-# rule in isolation.
+# Hook and board tests. A scratch git repo per case, no network.
+# Every hook is exercised both blocking and staying silent.
 set -uo pipefail
 
 HERE=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
@@ -109,6 +108,8 @@ cp "$PLUGIN/templates/AGENTS.md" "$REPO/AGENTS.md"; git -C "$REPO" add AGENTS.md
 check "an artifactPaths file needs no plan entry" deny "$(hook plan-sync.sh "$COMMIT")"
 git -C "$REPO" reset -q src/rogue.py
 check "only artefacts unplanned is silent" silent "$(hook plan-sync.sh "$COMMIT")"
+cp "$PLUGIN/templates/watch.md" "$REPO/docs/watch.md"; git -C "$REPO" add docs/watch.md
+check "the watch list needs no plan entry" silent "$(hook plan-sync.sh "$COMMIT")"
 git -C "$REPO" add src/rogue.py docs/balka/001-login/plan.md
 check "plan.md staged alongside is silent" silent "$(hook plan-sync.sh "$COMMIT")"
 mv "$REPO/docs/balka/001-login/plan.md" "$TMP/plan.bak"
@@ -230,58 +231,6 @@ check "the server answers with the board state"         board \
 check "the server serves the page"                      yes \
   "$(fetch "http://127.0.0.1:$BPORT/" | grep -q '<title>balka board</title>' && echo yes || echo no)"
 kill "$BPID" 2>/dev/null; wait "$BPID" 2>/dev/null
-
-echo
-echo "watch.py"
-WATCH="$PLUGIN/scripts/watch.py"
-BANDS="$PLUGIN/templates/bands.yaml"
-TODAY=2026-09-06
-
-# Build a gh-shaped runs file from a list of daily failure rates, oldest first.
-fixture() {
-  python3 - "$1" > "$TMP/runs.json" <<'PYF'
-import sys, json, datetime as dt
-rates = [float(x) for x in sys.argv[1].split(",")]
-end = dt.datetime(2026, 9, 6, 12, tzinfo=dt.timezone.utc)
-runs, per_day = [], 100
-for i, rate in enumerate(rates):
-    when = (end - dt.timedelta(days=len(rates) - 1 - i)).isoformat().replace("+00:00", "Z")
-    fails = round(rate * per_day)
-    for k in range(per_day):
-        runs.append({"conclusion": "failure" if k < fails else "success",
-                     "createdAt": when, "workflowName": "ci"})
-json.dump(runs, open(sys.argv[0] if False else "/dev/stdout", "w"))
-PYF
-}
-
-act() {
-  fixture "$1"
-  python3 -B "$WATCH" --bands "$BANDS" --runs-from "$TMP/runs.json" \
-    --today "$TODAY" --dry-run 2>&1 | sed -n 's/.*-> \([a-z_]*\).*/\1/p' | head -1
-}
-err() {
-  fixture "$1"
-  python3 -B "$WATCH" --bands "$BANDS" --runs-from "$TMP/runs.json" \
-    --today "$TODAY" --dry-run 2>&1 >/dev/null | head -1
-}
-
-BASE="0.1,0.2,0.1,0.1,0.2,0.1,0.1,0.2,0.1,0.1,0.2,0.1,0.1,0.2,0.1,0.1,0.2,0.1,0.1,0.2,0.1,0.1,0.2,0.1,0.1,0.2,0.1,0.1,0.2"
-check "a steady baseline finds nothing"       none        "$(act "$BASE,0.1")"
-check "one point beyond 3 sigma proposes a PR" propose_pr "$(act "$BASE,0.9")"
-check "2 of the last 3 beyond 2 sigma diagnoses" diagnose "$(act "$BASE,0.26,0.1,0.26")"
-check "4 of the last 5 beyond 1 sigma logs"    log        "$(act "$BASE,0.2,0.2,0.1,0.2,0.2")"
-check "8 consecutive above the mean logs"       log        "$(act "$BASE,0.15,0.15,0.15,0.15,0.15,0.15,0.15,0.15")"
-check "a flat line finds nothing"              none        "$(act "$(python3 -c 'print(",".join(["0.0"]*31))')")"
-check "short history refuses" "balka-watch: insufficient history: 10 calendar days spanned and 10 qualifying days, against 30 and 20 required. A baseline this short is noise, so no detection ran." \
-  "$(err "0.1,0.2,0.1,0.1,0.2,0.1,0.1,0.2,0.1,0.1")"
-check "no gh needed for any of the above"      none        "$(PATH=/usr/bin:/bin act "$BASE,0.1")"
-
-echo
-echo "bands.yaml reader"
-check "restricted YAML parses" "watch|investigate|act" "$(python3 -B -c "
-import importlib.util,sys
-spec=importlib.util.spec_from_file_location('w','$WATCH');w=importlib.util.module_from_spec(spec);spec.loader.exec_module(w)
-print('|'.join(b['name'] for b in w.load_bands('$BANDS')['bands']))")"
 
 echo
 printf '%d passed, %d failed\n' "$pass" "$fail"

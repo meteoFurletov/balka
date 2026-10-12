@@ -1,7 +1,7 @@
 {
   "name": "balka",
-  "description": "The six-stage AI-native SDLC playbook as commands, skills and opt-in hooks: intent, design with Gherkin scenarios and red bindings, plan then build until green, a fresh verifier, a Copilot-reviewed pull request, and a deterministic CI-drift watcher. Plus a reflect step that turns a repo's corrections into the next version. Project-agnostic; every artefact is plain markdown in the project's own git.",
-  "version": "0.6.2",
+  "description": "The six-stage AI-native SDLC playbook as commands, skills and opt-in hooks: intent, design with Gherkin scenarios and red bindings, plan then build until green, a fresh verifier, a Copilot-reviewed pull request, and a watch on everything it builds: each project chooses how it knows things keep running and which agent helps when they break. Plus a reflect step that turns a repo's corrections into the next version. Project-agnostic; every artefact is plain markdown in the project's own git.",
+  "version": "0.7.0",
   "author": {
     "name": "Nikita Furletov",
     "email": "meteofurletov@gmail.com"
@@ -15,13 +15,13 @@
     "copilot",
     "gherkin",
     "hooks",
+    "monitoring",
     "planning",
     "playbook",
     "process",
     "reflection",
     "sdlc",
     "spec-driven",
-    "statistical-process-control",
     "workflow"
   ]
 }

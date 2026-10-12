@@ -44,6 +44,9 @@ from memory — re-deriving it by hand is the drift this plugin exists to stop.
    moved with it; how long each change took, stage by stage, where the
    timestamps allow it.
 4. The facts document: which names in it were added after a correction.
+5. The watch list and the intents a responder wrote (`Watch:` under the
+   header): entries whose check raised a false alarm, breaks a person found
+   before any check did, and what the owner did with each responder's intent.
 
 Use subagents for 2 and 3 when the scope is more than a few changes; ask each
 for evidence with paths and numbers, never for fixes.

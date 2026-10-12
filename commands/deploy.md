@@ -62,8 +62,8 @@ the references to it, commit, and say so.
 Push the branch and open the pull request against the default branch, unless
 `$ARGUMENTS` names one that already exists. Its title is the change's slug in
 this repo's commit convention; its body is the plan's Scenarios this work
-proves and its Departures, by reference to the change directory — not a
-restatement of the plan.
+proves, its Departures, and what now watches the change from the spec's Watch
+section, by reference to the change directory — not a restatement of the plan.
 
 ## The review loop
 
@@ -99,6 +99,11 @@ Finish by printing the **How changes land** section of the facts document —
 the repos, the merge order, what to run after, how to roll back — so the owner
 has the landing steps in front of them. Where that section is empty, say so and
 offer to write it with them: the loop cannot land what nobody has written down.
+
+Then print what each Watch entry needs outside the repo before it can call its
+responder: a scheduler entry, a failure hook, a secret such as an API key, the
+agent enabled on the repository. The check ships with the change; wiring it up
+where it runs is a landing step like any other.
 
 Then say what happens to the worktree. Once the code owner merges, it has done
 its job: archive the session (the desktop app removes the worktree and its

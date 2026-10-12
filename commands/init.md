@@ -1,13 +1,13 @@
 ---
-description: Set this repo up for balka — opt-in marker, the facts document, the proposals inbox, starter AGENTS.md block and review policy, and optionally the deploy gate and Stage 6 detector.
+description: Set this repo up for balka — opt-in marker, the facts document, the watch list, the proposals inbox, starter AGENTS.md block and review policy, and optionally the deploy gate.
 argument-hint: "[--artifacts] [--hooks] [--gate] [--watch]"
 allowed-tools: Read, Write, Edit, Glob, Grep, Bash, Skill, AskUserQuestion
 ---
 
 Set this repository up for balka. Flags: $ARGUMENTS
 
-With no flags, do `--artifacts` and `--hooks` — the two that need no CI and no
-monitoring. The flags are additive and re-running any of them is safe. Say at the
+With no flags, do `--artifacts` and `--hooks`. The flags are additive and
+re-running any of them is safe. Say at the
 start which you are doing, so the user is never guessing.
 
 **Renamed from sdlc-loop.** If `.claude/sdlc.json` exists and `.claude/balka.json`
@@ -21,6 +21,14 @@ adding second ones. Say that you did it.
 
 If `<artifactDir>/CURRENT` exists, `git rm` it and say so. Nothing reads it any
 more: several changes can be in flight at once, one per branch.
+
+**The CI detector is gone.** Until 0.7 balka shipped a CI failure-rate
+detector. If `.claude/balka.json` has a `watch` object, remove the key and tell
+the owner that balka no longer maintains the files it copied: the paths under
+it, normally `scripts/balka-watch.py`, `.balka/` and
+`.github/workflows/balka-watch.yml`. Ask whether to keep running them as the
+project's own or remove them; remove them with `git rm` only on a yes. Either
+way, offer `/balka:watch` to record what the project runs in the watch list.
 
 **Never overwrite.** Merge into what is there. If a file exists and merging would
 change a line you did not write, report the collision — the file and the line —
@@ -40,8 +48,8 @@ Ask where artefacts should live (default `docs/balka`) and create it. Then:
 
 - Merge the `AGENTS.md` template into the repo's `AGENTS.md` between its
   `<!-- balka:begin -->` and `<!-- balka:end -->` markers, so re-running updates that block and touches
-  nothing else; substitute the real paths for `<artifacts-dir>` and
-  `<facts-doc>`. If the block from an earlier version carries a "Verifying your
+  nothing else; substitute the real paths for `<artifacts-dir>`,
+  `<facts-doc>` and `<watch-list>`. If the block from an earlier version carries a "Verifying your
   work" table, replace the whole block: the verify commands live in
   `.claude/balka.json` now.
 - If the repo also has a `CLAUDE.md`, Claude Code reads it instead of
@@ -50,6 +58,13 @@ Ask where artefacts should live (default `docs/balka`) and create it. Then:
   chooses (default `docs/estate.md`), with the owner's name. Ask for the names
   that keep getting corrected in this estate and put them in now; an empty
   Names section on day one is how the corrections start.
+- Write the watch list from the `watch.md` template at `docs/watch.md`, or the
+  path the owner chooses, with the owner's name and the real artefact directory
+  for `<artifact-dir>`. If it exists, merge the template's block between its
+  `<!-- balka:begin -->` and `<!-- balka:end -->` markers the same way as
+  `AGENTS.md`, so re-running brings the responder's rules up to date and leaves
+  the entries alone. Every responder reads that block in the repo, whatever
+  tool it is, so it is the one part of Stage 6 copied into the project.
 - Write `<artifactDir>/PROPOSALS.md` from its template.
 - Add `.claude/worktrees/` to `.gitignore` unless something there already
   covers it. Worktree sessions live there, and the main checkout should not
@@ -73,11 +88,12 @@ Set from what the repo actually looks like:
 - `scenarioGlobs` — where `.feature` files are. Look for existing ones; if there
   are none, ask where they will go.
 - `artifactDir` and `artifactPaths` — the artefact directory plus the facts
-  document, `AGENTS.md`, `CLAUDE.md`, `REVIEW.md`, `.github/copilot-instructions.md` and
-  `.claude/balka.json`. These are artefacts living outside the artefact
+  document, the watch list, `AGENTS.md`, `CLAUDE.md`, `REVIEW.md`,
+  `.github/copilot-instructions.md` and `.claude/balka.json`. These are artefacts living outside the artefact
   directory, and leaving them out makes `plan-sync` block every commit that
   touches them.
 - `facts` — the facts document's path.
+- `watchList` — the watch list's path.
 - `deploy` — `"pr"` where changes go through a pull request on GitHub;
   `"manual"` where this repo's landing pipeline is its own and the loop only
   prints it.
@@ -85,7 +101,9 @@ Set from what the repo actually looks like:
 
 A file from version 1 of this plugin (no `version`, or `version: 1`) is
 upgraded in place: add the missing keys with these defaults, move
-`scenarioCommand` into `verify.scenarios`, and say what moved.
+`scenarioCommand` into `verify.scenarios`, and say what moved. A version 2
+file without `watchList` gets it, and the watch list's path joins
+`artifactPaths`.
 
 Globs take `*`, `?` and `**`. Brace expansion is not supported.
 
@@ -116,8 +134,8 @@ construction.
 
 ### --watch
 
-Hand off to `/balka:watch`, which checks its own preconditions and refuses
-clearly if they do not hold.
+Hand off to `/balka:watch`, which asks how each thing this project already runs
+is known to keep working, and records the owner's answers in the watch list.
 
 ### Finally
 
