@@ -14,7 +14,7 @@ commands/        one per stage transition, plus init, verify and reflect
 skills/
   balka-artifacts        the house rules, for prose asks
   balka-watch-writeback  the headless Stage 6 diagnosis
-templates/       the twelve shipped artefacts, read via ${CLAUDE_PLUGIN_ROOT}
+templates/       shipped artefacts and policies, read via ${CLAUDE_PLUGIN_ROOT}
 hooks/           hooks.json registers all four; each is inert without opt-in
 scripts/watch.py the Stage 6 detector — stdlib + gh, no model in the path
 scripts/claim.sh one change, one main agent: reserves change numbers
@@ -35,10 +35,11 @@ Then, in a repo you want to run the loop in:
 /balka:init
 ```
 
-`init` writes an opt-in marker, the facts document, the proposals inbox, a
-starter `AGENTS.md` block and the review policy. It merges with what is there
-and never overwrites; on a conflict it reports and stops. Adopt one play at a
-time with `--artifacts`, `--hooks`, `--gate` and `--watch`.
+`init` establishes current project documentation, the facts document, the
+proposals inbox, a starter `AGENTS.md` block, the review policy, and an opt-in
+marker. It inspects existing content and preflights every selected setup edit
+before writing; a collision leaves the repository unchanged. Adopt one play at
+a time with `--artifacts`, `--hooks`, `--gate` and `--watch`.
 
 ## The loop
 
@@ -123,6 +124,51 @@ facts the code does not say, and how changes land — repos, merge order, what t
 run after. A name corrected in chat twice goes there once, and a scenario that
 spells a system differently from that file is wrong before the owner reads it.
 
+## Current project documentation
+
+Project documentation has a readable home alongside the change history. Init
+reuses the repository's established layout, overview, and writing policy. For
+missing roles, the defaults are `docs/`, `docs/project-overview.md`, and
+`docs/documentation-writing.md`. A maintained README or handbook can serve as
+the overview; init does not create a competing account or relocate files.
+
+The overview explains the purpose, how the major parts fit together, and where
+to find working procedures. It is grounded in inspected repository evidence,
+with unsupported details marked unknown. The facts document keeps its role as
+the home for estate names, facts, and landing procedures; the overview points
+to it rather than duplicating it.
+
+Short pointers in the managed `AGENTS.md` block identify the documentation
+home, overview, and writing policy. Agents start with a shallow view of
+filenames, then read task-relevant documents and sections. Large documents can
+be explored through their headings. No tree executable, new discovery helper,
+or documentation configuration keys are required. Historical proposals stay
+available for relevant investigations and are distinct from current guidance.
+
+The writing policy is the shared source for discovery and maintenance rules.
+It covers project-specific concepts, decisions and reasons, constraints, and
+verified discoveries, with references to authoritative code and commands.
+Plan identifies documentation impact and affected paths, or explains why the
+current guidance remains accurate. Build updates the affected documents. Test's
+fresh verifier checks them, including relevant inherited guidance, against the
+accepted contract and implementation evidence. Corrections return to Build;
+contract disagreements return to the owner and Design. Unrelated documentation
+debt does not require a repository-wide audit.
+
+Intended behavior, verified implementation, and observed runtime state remain
+distinct. A merged configuration or green tests do not prove a live rollout.
+Documents state evidence and uncertainty where they matter; current status or
+recent metadata does not settle contradictions.
+
+To adopt this in an existing repository, rerun `/balka:init --artifacts` after
+upgrading. Init retains selected paths, owner additions, facts, and proposals.
+Managed entry blocks update in place; compatible maintained documents are
+reused unchanged. A needed edit to maintained content is reported with its
+file and conflicting lines before any setup writes. Resolve it in place and
+rerun. Current documentation uses the normal plan file list, not a broad
+`artifactPaths` exemption. Until the pointers and local policy are established,
+stage commands discover existing guidance and use the shipped policy fallback.
+
 ## Scenarios are the contract
 
 The design transition turns each plain-words behaviour from the intent into a
@@ -150,9 +196,10 @@ a bug in balka, and it is fixed in balka, not worked around in the repo.
 
 The verifier is a subagent with a fresh context. It checks the spec against the
 scenarios, the scenarios against their bindings, the code against the spec, and
-the plan against what was touched. It writes no file: a finding in code goes
-back to Build and is fixed; a finding against a scenario, an assertion or the
-spec stops the loop for the owner. The pull request's review is the record.
+the plan against what was touched, and relevant current documentation against
+the contract and evidence. It writes no file: a finding in code or guidance
+goes back to Build and is fixed; a finding against a scenario, an assertion or
+the spec stops the loop for the owner. The pull request's review is the record.
 
 ## Deploy
 
@@ -256,6 +303,12 @@ bash tests/run.sh
 
 A scratch git repo per case, no network and no `gh`. Every hook is exercised both
 blocking and staying silent, and every detection rule in isolation.
+
+The documentation-workflow scenarios in `features/` have no runner or bindings.
+They are a manual acceptance checklist for instruction review. Plugin
+validation and the offline tests check packaging and existing mechanisms;
+neither they nor metadata prove that documentation is true or that arbitrary
+agents follow every instruction.
 
 ## Requirements
 

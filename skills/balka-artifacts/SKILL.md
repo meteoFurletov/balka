@@ -1,6 +1,6 @@
 ---
 name: balka-artifacts
-description: Use when writing or updating an SDLC artefact — intent.md, spec.md, plan.md, a Gherkin .feature file, the facts document or PROPOSALS.md — in a repo carrying .claude/balka.json, and no /balka command was typed. Covers the house rules those artefacts must follow (read the facts document first, link upstream instead of restating it, name one owner, size by scope not by cutting, scenarios and their Then assertions change only at the design transition), the status vocabulary, and where the shipped templates live so a command can find them. Triggers include "write the intent for this", "turn that into a spec", "add a scenario", "update the plan", "split this intent", "park this", "what should the spec say", "add this name to the estate". Do NOT use for ordinary READMEs or design docs outside the loop.
+description: Write or update Balka SDLC artifacts in an opted-in repository when no /balka command was typed. Covers intent, spec, plan, Gherkin, estate facts, and proposals; excludes ordinary documentation outside the loop.
 ---
 
 # SDLC artefacts
@@ -8,9 +8,9 @@ description: Use when writing or updating an SDLC artefact — intent.md, spec.m
 This repo runs the six-stage loop. When someone asks for one of its artefacts in
 prose rather than through `/balka:<stage>`, the rules below still apply.
 
-Read `.claude/balka.json` at the git root for `artifactDir`, `scenarioGlobs` and
-`facts`. No such file means the repo has not opted in — write what was asked for
-and skip the rest of this.
+Read `.claude/balka.json` at the git root (or the legacy `.claude/sdlc.json`)
+for `artifactDir`, `scenarioGlobs` and `facts`. Neither file means the repo has
+not opted in — write what was asked for and skip the rest of this.
 
 Prefer the command where one fits. `/balka:intent`, `:spec` and `:plan`
 carry the whole transition including the acceptance step. This skill is for the
@@ -27,6 +27,8 @@ templates/
   scenario.feature          Stage 2, one per capability
   plan.md                   Stage 3
   estate.md                 the facts document init writes
+  project-overview.md       the readable entry to current project knowledge
+  documentation-writing.md  discovery and maintenance policy
   PROPOSALS.md              the reflect inbox init writes
   AGENTS.md                 the starter block init merges into the project
   REVIEW.md                 the pointer at the review policy
@@ -39,12 +41,23 @@ templates/
 Never reconstruct a template from memory. Re-deriving it by hand in each repo is
 exactly the drift this plugin exists to stop.
 
+If the plugin root is unavailable, resolve its install path with
+`jq -r '(.plugins // .) | to_entries[]|select(.key|startswith("balka@"))|.value[0].installPath' ~/.claude/plugins/installed_plugins.json`
+and read `templates/<name>` there. If neither route works, report it and stop.
+
 ## The rules
 
 **Read the facts document first.** Every name in an artefact — system, repo,
 table, service, person — is spelled the way that file spells it. A name the
 file does not have is asked for and added there before it is used. A correction
 that has landed in chat twice goes to `<artifactDir>/PROPOSALS.md` once.
+
+**Discover current guidance.** After the facts document, follow the documentation
+pointers in `AGENTS.md` and apply the writing policy there. Without the pointers
+or policy, read the shipped `documentation-writing.md` template and discover the
+existing layout. No init or new inventory is required to continue. Consult
+relevant current guidance before drafting; preserve the distinction between a
+proposal, verified implementation, and observed runtime state.
 
 **Link upstream, never restate it.** `spec.md` opens by pointing at `intent.md`
 and adds only what is new. `plan.md` points at both. A summary of an upstream

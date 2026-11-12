@@ -14,6 +14,10 @@ Requirements and design live in `spec.md` and are not repeated here.
 
 1. <step>
 
+<Identify the affected current documentation and how it changes, including
+useful verified discoveries. List its paths below. If no update is needed,
+explain specifically why the existing guidance remains accurate.>
+
 ## Files that change
 
 <Repo-relative paths, one per line, no prose. The `plan-sync` hook reads this

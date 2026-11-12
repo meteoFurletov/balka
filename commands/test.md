@@ -29,6 +29,12 @@ estate's real names and the facts the code does not say; a draft that spells a
 system, repo or table differently from that file is wrong before the owner reads
 it. If a name you need is missing there, ask, and add it there first.
 
+After the facts document, follow the documentation pointers in `AGENTS.md` to
+discover task-relevant current guidance and apply its writing policy. If the
+pointers or policy are absent, load `documentation-writing.md` through the
+template route below and discover the existing layout. Init is not a
+prerequisite for continuing.
+
 ## Loading a template
 
 Read `${CLAUDE_PLUGIN_ROOT}/templates/<name>`. If that path does not exist, fall
@@ -46,9 +52,12 @@ green, then come back here. Green here is necessary, not sufficient.
 ## Then the verifier
 
 Spawn one subagent with a fresh context — one that did not write the code — and
-give it the paths of `spec.md`, the `.feature` files the plan proves, their
-bindings, the git ref of the design commit (the last commit that changed this
-change's `spec.md`), and the diff since. It reads, runs nothing, and reports
+give it the paths of `spec.md`, `plan.md`, the `.feature` files the plan proves,
+their bindings, the git ref of the design commit (the last commit that changed
+this change's `spec.md`), and the diff since. Include the entry instructions,
+facts document, writing policy, relevant current documents, and their
+implementation/evidence references, including inherited guidance needed to
+understand or use the change. It reads, runs nothing, and reports
 findings ranked by severity, or says clearly that it found none. Its checks:
 
 1. **Spec against scenarios.** Every requirement has a scenario that exercises
@@ -63,17 +72,37 @@ findings ranked by severity, or says clearly that it found none. Its checks:
    under Non-goals that landed is a finding.
 4. **Plan against reality.** Files touched but absent from the plan's list and
    its Departures.
+5. **Documentation against evidence.** Apply the writing policy. Trace usable
+   references from the entry instructions to the relevant knowledge and its
+   authoritative sources. Check explanations and procedures against the
+   accepted contract and implementation, including relevant inherited guidance.
+   Missing knowledge, misleading or conflicting accounts, broken discovery
+   references, and unsupported runtime claims are findings. Check the plan's
+   no-update explanation when one exists. Status, recency, metadata, and green
+   tests alone do not establish semantic correctness. A correctly stated lack
+   of production observation is acceptable; do not require a live rollout or
+   an unrelated documentation audit to establish that the change is built.
+
+Where scenarios have no runner or bindings, walk their acceptance examples
+against the implementation and instructions manually. State that this is a
+manual review; do not present it as executed agent behavior or passing Gherkin.
 
 ## What happens with findings
 
 Nothing is written for a person to read: a finding is either fixed or it stops
 the loop.
 
-- A finding in the code or in binding glue goes back to Build: fix it, run the
+- A finding in the code, binding glue, or current documentation goes back to Build:
+  correct it within the accepted contract, run the
   verify commands green, and run the verifier again. Two rounds is normal; a
   third with the same finding means the plan is wrong — stop and say so.
 - A finding against a scenario, an assertion or the spec stops here. Print it
   and say it needs the owner and `/balka:spec`.
+
+Use the second route when a documentation finding exposes a contract
+disagreement. Do not rewrite the requirement to match newer prose or code.
+Resolve findings in the affected knowledge before marking the change built;
+unrelated debt can use the project's existing reporting mechanism.
 
 When the verifier is clean, set `Status: built` on the line under Departures in
 `plan.md`, commit it, and say so. Then ask "Continue to deploy now?". On yes,

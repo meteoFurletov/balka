@@ -26,6 +26,12 @@ estate's real names and the facts the code does not say; a draft that spells a
 system, repo or table differently from that file is wrong before the owner reads
 it. If a name you need is missing there, ask, and add it there first.
 
+After the facts document, follow the documentation pointers in `AGENTS.md` to
+discover task-relevant current guidance and apply its writing policy. If the
+pointers or policy are absent, load `documentation-writing.md` through the
+template route below and discover the existing layout. Init is not a
+prerequisite for continuing.
+
 ## Loading a template
 
 Read `${CLAUDE_PLUGIN_ROOT}/templates/<name>`. If that path does not exist, fall

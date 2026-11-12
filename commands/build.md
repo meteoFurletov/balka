@@ -33,6 +33,12 @@ estate's real names and the facts the code does not say; a draft that spells a
 system, repo or table differently from that file is wrong before the owner reads
 it. If a name you need is missing there, ask, and add it there first.
 
+After the facts document, follow the documentation pointers in `AGENTS.md` to
+discover task-relevant current guidance and apply its writing policy. If the
+pointers or policy are absent, load `documentation-writing.md` through the
+template route below and discover the existing layout. Init is not a
+prerequisite for continuing.
+
 ## Loading a template
 
 Read `${CLAUDE_PLUGIN_ROOT}/templates/<name>`. If that path does not exist, fall
@@ -73,6 +79,13 @@ Rules that hold throughout:
   turns out wrong, append one line to Departures in `plan.md` saying what and
   why, stage `plan.md` with the commit that departs, and continue. A departure
   that changes what the spec requires is not yours to make: stop and say so.
+- **Current documentation ships with the change.** Read the writing policy
+  before editing reusable guidance. Carry out the plan's documentation impact
+  assessment, update affected authoritative documents, and retain useful
+  verified discoveries there. A newly discovered documentation path is a normal
+  recorded departure. Correct relevant inherited errors; a contract disagreement
+  takes the existing design route. Follow the policy's evidence distinctions
+  rather than claiming a live rollout from implementation checks.
 - **New behaviour with no scenario stops the build.** It gets a scenario at the
   design transition or it does not get built.
 - Commit as you go in this repo's convention. A red verify run is never

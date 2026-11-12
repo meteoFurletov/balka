@@ -18,6 +18,12 @@ its own branch with one main agent.
 Read `<facts-doc>` before drafting anything: it holds the estate's real names,
 the facts the code does not say, and how changes land.
 
+Documentation home: `<documentation-home>`.
+Project overview: `<overview-doc>`.
+Documentation writing policy: `<documentation-policy>`.
+Use the policy's discovery rules to find task-relevant guidance. Read the
+policy before changing reusable documentation; keep this entry block short.
+
 Git is the history. Change artefacts and scenarios in place; never delete,
 recreate, rename or copy a file to get past a balka hook or rule. If balka
 blocks work that is right, stop and tell the owner: that is a bug in balka.

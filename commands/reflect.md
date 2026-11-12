@@ -23,6 +23,12 @@ estate's real names and the facts the code does not say; a draft that spells a
 system, repo or table differently from that file is wrong before the owner reads
 it. If a name you need is missing there, ask, and add it there first.
 
+After the facts document, follow the documentation pointers in `AGENTS.md` to
+discover task-relevant current guidance and apply its writing policy. If the
+pointers or policy are absent, load `documentation-writing.md` through the
+template route below and discover the existing layout. Init is not a
+prerequisite for continuing.
+
 ## Loading a template
 
 Read `${CLAUDE_PLUGIN_ROOT}/templates/<name>`. If that path does not exist, fall
@@ -44,6 +50,11 @@ from memory — re-deriving it by hand is the drift this plugin exists to stop.
    moved with it; how long each change took, stage by stage, where the
    timestamps allow it.
 4. The facts document: which names in it were added after a correction.
+5. Relevant current documentation and the entry instructions: repeated failures
+   to discover guidance, conflicting accounts, and useful corrections that did
+   not reach their authoritative homes. Check actual failed sessions and source
+   history where available; do not infer success from a clean tree or metadata.
+   Apply the writing policy rather than inventing another document taxonomy.
 
 Use subagents for 2 and 3 when the scope is more than a few changes; ask each
 for evidence with paths and numbers, never for fixes.

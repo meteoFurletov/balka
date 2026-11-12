@@ -33,6 +33,12 @@ estate's real names and the facts the code does not say; a draft that spells a
 system, repo or table differently from that file is wrong before the owner reads
 it. If a name you need is missing there, ask, and add it there first.
 
+After the facts document, follow the documentation pointers in `AGENTS.md` to
+discover task-relevant current guidance and apply its writing policy. If the
+pointers or policy are absent, load `documentation-writing.md` through the
+template route below and discover the existing layout. Init is not a
+prerequisite for continuing.
+
 ## Loading a template
 
 Read `${CLAUDE_PLUGIN_ROOT}/templates/<name>`. If that path does not exist, fall
@@ -64,6 +70,13 @@ Push the branch and open the pull request against the default branch, unless
 this repo's commit convention; its body is the plan's Scenarios this work
 proves and its Departures, by reference to the change directory — not a
 restatement of the plan.
+
+Include the plan's affected documentation with the implementation in this same
+reviewed change. Apply the writing policy's evidence distinctions to the PR and
+current guidance: a configuration change, passing checks, or a merge is not
+proof of a production rollout. Describe landing only from actual evidence,
+leaving unobserved runtime state explicitly unverified. This adds no rollout
+action or approval gate.
 
 ## The review loop
 

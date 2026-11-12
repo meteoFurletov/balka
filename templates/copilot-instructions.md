@@ -23,6 +23,13 @@ tests or report that they pass — the Test stage already did that.
 - Errors are handled where they occur, not swallowed.
 - No secrets, credentials or customer data.
 - Names match the repo's estate document where one exists.
+- Follow the documentation pointers in `AGENTS.md` and apply the writing policy
+  there. If absent, use the repository's existing guidance; flag a missing
+  policy when relevant.
+- The plan explains documentation impact, and affected current guidance agrees
+  with the contract and implementation evidence. Report missing explanations,
+  contradictions, broken discovery paths, and unsupported rollout claims.
+  Include relevant inherited guidance; unrelated debt does not widen the review.
 
 ## Fit
 

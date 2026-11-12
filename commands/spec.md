@@ -33,6 +33,12 @@ estate's real names and the facts the code does not say; a draft that spells a
 system, repo or table differently from that file is wrong before the owner reads
 it. If a name you need is missing there, ask, and add it there first.
 
+After the facts document, follow the documentation pointers in `AGENTS.md` to
+discover task-relevant current guidance and apply its writing policy. If the
+pointers or policy are absent, load `documentation-writing.md` through the
+template route below and discover the existing layout. Init is not a
+prerequisite for continuing.
+
 ## Loading a template
 
 Read `${CLAUDE_PLUGIN_ROOT}/templates/<name>`. If that path does not exist, fall
@@ -63,6 +69,10 @@ the intent, delete the summary and cite the file.
 
 **Constraints** live here, not in the intent: the systems, names, limits and
 policies the design must respect. Take names from the facts document.
+
+Link relevant current contracts and constraints rather than restating them.
+Keep the proposed change distinct from what the implementation and runtime
+evidence establish; the writing policy does not override the accepted contract.
 
 **The scenarios are the point of this transition.** Turn each plain-words
 behaviour from the intent into Gherkin in a `.feature` file committed alongside:

@@ -39,6 +39,12 @@ estate's real names and the facts the code does not say; a draft that spells a
 system, repo or table differently from that file is wrong before the owner reads
 it. If a name you need is missing there, ask, and add it there first.
 
+After the facts document, follow the documentation pointers in `AGENTS.md` to
+discover task-relevant current guidance and apply its writing policy. If the
+pointers or policy are absent, load `documentation-writing.md` through the
+template route below and discover the existing layout. Init is not a
+prerequisite for continuing.
+
 ## Loading a template
 
 Read `${CLAUDE_PLUGIN_ROOT}/templates/<name>`. If that path does not exist, fall
@@ -57,6 +63,14 @@ that do not exist.
 Requirements and design live in `spec.md`. Do not restate them. `plan.md`
 carries decisions, the scenarios it proves, the file list, the risks, and an
 empty Departures section for Build to fill.
+
+In Approach, assess the impact on current project documentation, including
+inherited guidance needed to understand or use the change. Name the
+authoritative documents and what must change; put their paths in the normal
+file list below. Include useful discoveries the work should preserve. If no
+documentation update is needed, explain specifically why the existing guidance
+remains accurate, for example when a bug fix restores its documented contract.
+Apply the writing policy by reference; do not copy it into the plan.
 
 Two sections earn their place by being read by something downstream:
 
