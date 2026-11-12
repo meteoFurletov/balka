@@ -1,6 +1,6 @@
 # Plan: Give project documentation a clear home and keep it current through Balka
 
-From [spec.md](spec.md) (2026-11-12), following [intent.md](intent.md). Owner: Nikita Furletov. Status: accepted. Date: 2026-11-12.
+From [spec.md](spec.md) (2026-11-12), following [intent.md](intent.md). Owner: Nikita Furletov. Status: built. Date: 2026-11-12.
 
 ## Scenarios this work proves
 
