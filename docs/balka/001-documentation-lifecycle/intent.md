@@ -1,32 +1,33 @@
-# Intent: Keep reusable project knowledge current through the Balka loop
+# Intent: Give project documentation a clear home and keep it current through Balka
 
-Author: Codex, from Nikita Furletov's request. Owner: Nikita Furletov. Status: draft. Date: 2026-11-12.
+Author: Codex, from Nikita Furletov's request. Owner: Nikita Furletov. Status: accepted. Date: 2026-11-12.
 
 ## Problem
 
-Balka preserves the intent, design, implementation plan, and executable checks for a change. It does not explicitly require the change to leave reusable project knowledge consistent with the result. A later agent may therefore need to reconstruct the current system from past changes and conversations, or rely on stale guidance.
+Nikita has no clear place to read current project documentation and understand how a repository works. Balka preserves individual changes, but does not require a readable body of current project knowledge. Agents must piece that understanding together from code, past changes, and conversations, and existing documentation may be missing or stale.
 
 ## Outcome
 
-Each completed change leaves accurate, discoverable project knowledge that a later agent can reuse. Agents load relevant information progressively, and reusable knowledge is checked as part of completing the change.
+Each adopting repository has a clear home for project documentation that Nikita can read and agents can use to understand the project. Relevant details are easy to discover without reading everything. Each completed change leaves the knowledge it affects consistent with the accepted contract and available evidence.
 
 ## Behaviours
 
-- An agent can discover relevant current knowledge from a short entry point without loading the entire document and change archive.
-- Current guidance remains distinguishable from historical proposals and records.
-- Documents distinguish intended behavior, verified implementation, and observed runtime state.
+- A person or agent can find a readable explanation of the project's purpose, how its parts fit together, and how to work with it.
+- An agent can discover relevant documents and sections from a short entry point without loading the entire document and change archive.
+- Current project guidance is distinguishable from historical proposals and records, and documents distinguish intended behavior, verified implementation, and observed runtime state.
+- Project-specific concepts, decisions and their reasons, constraints, and verified discoveries have authoritative homes that future work can reuse.
 - A change updates the affected authoritative documents alongside its implementation, or explains why no update is needed.
-- Verification finds relevant documentation that is missing, misleading, inaccessible through the entry point, or inconsistent with the accepted contract and implementation.
-- Documentation findings use the existing correction and design routes before a change is declared built.
-- Useful project corrections persist in authoritative guidance; process-wide improvements continue through reflection.
+- Verification checks relevant documentation, including inherited guidance, against the accepted contract and implementation evidence; document status or recency alone does not establish correctness.
+- Missing, misleading, conflicting, or undiscoverable guidance uses the existing correction and design routes before a change is declared built; unsupported claims remain explicitly uncertain.
 - Existing projects adopt the rules incrementally while preserving their documentation layout, manually maintained content, and history.
 
 ## Out of scope
 
 - A new SDLC stage, universal knowledge-store technology, or prohibition on skills.
 - Bulk migration or modification of adopting repositories.
+- Auditing or documenting the entire repository as a prerequisite for every change.
 - Claims that timestamps or automated text checks prove semantic correctness.
 
 ## Open questions
 
-None blocking this intent. The design must choose the minimum entry and policy mechanism compatible with existing repositories.
+None outstanding. Ready for design.
