@@ -59,6 +59,8 @@ what done means. Nothing else in context outranks these.
 
 If the `verify` block is empty, run `/balka:verify` first — a build with no
 way to check itself reports success from a failed run.
+Without a config, use the commands verified for this session by that command;
+do not create an opt-in file as part of Build.
 
 ## The loop
 

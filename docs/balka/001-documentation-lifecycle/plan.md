@@ -64,3 +64,5 @@ Documentation impact: the implementation is workflow guidance. The README, comma
 ## Departures
 
 - Independent review found that slash stages ignored the still-supported legacy config. Align their readers with the existing fallback, including `commands/verify.md` outside the original file list, so configured paths, facts, verification, and deploy settings remain authoritative without implicit migration.
+- Define Verify's no-config continuation as validating and reporting commands for the session without creating an opt-in file; Build and Test use those commands when no config exists.
+- Align Test and the plan template's completion instruction with the board and hooks, which read the header's first status; update that status to built instead of adding a second status under Departures.

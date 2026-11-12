@@ -32,5 +32,5 @@ list, so it has to be real. A directory path covers everything beneath it.>
 ## Departures
 
 <Empty at approval. Build appends one line per departure from the approach or
-the file list, with the reason, as it happens. Test sets `Status: built` here
-when the verifier is clean.>
+the file list, with the reason, as it happens. When the verifier is clean,
+Test changes the header's status from accepted to built.>

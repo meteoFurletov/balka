@@ -19,6 +19,11 @@ it implicitly. Only if neither file exists, say that the repo has not run
 `/balka:init` and its hooks are inert, then continue with `artifactDir: docs/balka`,
 `scenarioGlobs: ["features/**/*.feature"]` and no facts document.
 
+With neither config present, discover and validate commands below but do not
+write a configuration file or opt the repository into hooks. Report the
+verified commands for this session; `/balka:init --hooks` can establish a
+config for later persistence.
+
 Artefacts live one directory per change: `<artifactDir>/<NNN>-<slug>/`. A
 change lives on one branch, usually in its own worktree, with one main agent;
 several can be in flight at once. Take the date from `date +%F`, never from your
@@ -46,8 +51,8 @@ For each of `build`, `test`, `lint` and `scenarios`:
 2. Ask the engineer to confirm or correct it. Do not guess silently.
 3. Run it. If it fails now, that is worth knowing now: report it and ask whether
    to record the command anyway.
-4. Write it as a string under `verify` in the selected config, leaving every
-   other key alone.
+4. If a config was selected, write it as a string under `verify` there, leaving
+   every other key alone. Otherwise retain it for this session and report it.
 
 `scenarios` is the command that runs the `.feature` files through their
 bindings. Binding scenarios to a runner is this repo's business — the plugin

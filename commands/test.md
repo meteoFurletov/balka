@@ -47,7 +47,8 @@ from memory — re-deriving it by hand is the drift this plugin exists to stop.
 
 ## First, the feedback loop's last word
 
-Run every command in the `verify` block. Red here goes straight back to Build:
+Run every command in the `verify` block, or the commands verified for this
+session when no config exists. Red here goes straight back to Build:
 say what failed and follow `${CLAUDE_PLUGIN_ROOT}/commands/build.md` until it is
 green, then come back here. Green here is necessary, not sufficient.
 
@@ -106,7 +107,8 @@ disagreement. Do not rewrite the requirement to match newer prose or code.
 Resolve findings in the affected knowledge before marking the change built;
 unrelated debt can use the project's existing reporting mechanism.
 
-When the verifier is clean, set `Status: built` on the line under Departures in
-`plan.md`, commit it, and say so. Then ask "Continue to deploy now?". On yes,
+When the verifier is clean, replace `Status: accepted` with `Status: built` in
+`plan.md`'s header, commit it, and say so. Keep one authoritative status; the
+board and hooks read the header. Then ask "Continue to deploy now?". On yes,
 read `${CLAUDE_PLUGIN_ROOT}/commands/deploy.md` and follow it in this session.
 On no, stop.
