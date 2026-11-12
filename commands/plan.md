@@ -24,10 +24,12 @@ you find yourself wanting to change code, the plan is not finished.
 
 ## Before anything
 
-Read `.claude/balka.json` at the git root. If it is absent, say that this repo has
-not run `/balka:init` and that the hooks are inert here, then continue with
-the defaults `artifactDir: docs/balka`, `scenarioGlobs: ["features/**/*.feature"]`
-and no facts document.
+Read `.claude/balka.json` at the git root, falling back to the legacy
+`.claude/sdlc.json` when the modern file is absent. Use that selected config's
+paths, facts, and verification settings throughout this stage; do not migrate
+it implicitly. Only if neither file exists, say that the repo has not run
+`/balka:init` and its hooks are inert, then continue with `artifactDir: docs/balka`,
+`scenarioGlobs: ["features/**/*.feature"]` and no facts document.
 
 Artefacts live one directory per change: `<artifactDir>/<NNN>-<slug>/`. A
 change lives on one branch, usually in its own worktree, with one main agent;

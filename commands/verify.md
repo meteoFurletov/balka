@@ -1,9 +1,9 @@
 ---
-description: Fill the verify block in .claude/balka.json — the build, test, lint and scenario commands Build runs until green — by proposing each from the repo and running it once.
+description: Fill the active Balka config's verify block — the build, test, lint and scenario commands Build runs until green — by proposing each from the repo and running it once.
 allowed-tools: Read, Edit, Glob, Grep, Bash, Skill, AskUserQuestion
 ---
 
-Fill `verify` in this project's `.claude/balka.json`.
+Fill `verify` in this project's selected Balka config, using the lookup below.
 
 An agent that cannot tell a healthy run from a broken one will report success
 from a failed build. The four commands under `verify` are what Build runs until
@@ -12,10 +12,12 @@ agent needs them at Build, not in every session's context.
 
 ## Before anything
 
-Read `.claude/balka.json` at the git root. If it is absent, say that this repo has
-not run `/balka:init` and that the hooks are inert here, then continue with
-the defaults `artifactDir: docs/balka`, `scenarioGlobs: ["features/**/*.feature"]`
-and no facts document.
+Read `.claude/balka.json` at the git root, falling back to the legacy
+`.claude/sdlc.json` when the modern file is absent. Use that selected config's
+paths, facts, and verification settings throughout this stage; do not migrate
+it implicitly. Only if neither file exists, say that the repo has not run
+`/balka:init` and its hooks are inert, then continue with `artifactDir: docs/balka`,
+`scenarioGlobs: ["features/**/*.feature"]` and no facts document.
 
 Artefacts live one directory per change: `<artifactDir>/<NNN>-<slug>/`. A
 change lives on one branch, usually in its own worktree, with one main agent;
@@ -44,7 +46,7 @@ For each of `build`, `test`, `lint` and `scenarios`:
 2. Ask the engineer to confirm or correct it. Do not guess silently.
 3. Run it. If it fails now, that is worth knowing now: report it and ask whether
    to record the command anyway.
-4. Write it as a string under `verify` in `.claude/balka.json`, leaving every
+4. Write it as a string under `verify` in the selected config, leaving every
    other key alone.
 
 `scenarios` is the command that runs the `.feature` files through their

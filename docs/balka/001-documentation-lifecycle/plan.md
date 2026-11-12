@@ -62,3 +62,5 @@ Documentation impact: the implementation is workflow guidance. The README, comma
 - Roll back a released regression by reverting the implementation commits in Git. Retain adopted project documents and their history; correct affected guidance in place.
 
 ## Departures
+
+- Independent review found that slash stages ignored the still-supported legacy config. Align their readers with the existing fallback, including `commands/verify.md` outside the original file list, so configured paths, facts, verification, and deploy settings remain authoritative without implicit migration.
