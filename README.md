@@ -14,4 +14,6 @@ The [AI SDLC Design intent](balka/004-ai-sdlc-design/intent.md) defines how agen
 
 The [AI SDLC Build intent](balka/005-ai-sdlc-build/intent.md) defines how agents obtain acceptance of an implementation plan, build and check the change, and pass the evidence to Test.
 
+The [AI SDLC Test intent](balka/006-ai-sdlc-test/intent.md) defines independent verification, correction and reverification of findings, and the evidence passed to delivery review.
+
 The [todo list](balka/todo.md) holds work to develop into future intents.
