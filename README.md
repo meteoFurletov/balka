@@ -18,4 +18,6 @@ The [AI SDLC Test intent](balka/006-ai-sdlc-test/intent.md) defines independent 
 
 The [AI SDLC Deploy intent](balka/007-ai-sdlc-deploy/intent.md) defines agent review, enforced release approvals, and agent work in CI/CD through delivery and recovery.
 
+The [AI SDLC Maintain intent](balka/008-ai-sdlc-maintain/intent.md) defines ongoing observation, recurring scans, incident response, and how findings feed new work back into Plan within the project's authority boundaries.
+
 The [todo list](balka/todo.md) holds work to develop into future intents.

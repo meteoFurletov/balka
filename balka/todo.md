@@ -5,7 +5,6 @@ Work to return to and develop into future intents. These entries do not define a
 ## Core loop
 
 - [ ] **BDD Design contract:** define how Design produces readable Gherkin scenarios and, where a runner exists, bindings that assert observable results and fail for the intended missing behavior. Have the owner review the scenarios before Build uses them. Include changes that preserve existing behavior without inventing new scenarios.
-- [ ] **AI SDLC Maintain:** define how observed failures produce evidence for a new draft intent and how diagnosis stays within its authority. Decide suitable signals in that intent without assuming that CI health establishes runtime health.
 
 ## Agent development
 
