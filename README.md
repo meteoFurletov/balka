@@ -7,3 +7,5 @@ The core idea comes from Anthropic's [The AI-native SDLC playbook](https://claud
 See the [accepted harness-independence intent](balka/001-harness-independence/intent.md) for the direction and boundaries.
 
 The [AI SDLC loop intent](balka/002-ai-sdlc-loop/intent.md) defines Balka's core loop: Plan → Design → Build → Test → Deploy → Maintain → a new intent. Each stage will be developed through its own intent.
+
+The [AI SDLC Plan intent](balka/003-ai-sdlc-plan/intent.md) defines how agents clarify a need, capture it as `intent.md`, and obtain owner acceptance before Design.
