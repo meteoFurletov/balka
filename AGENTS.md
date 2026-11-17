@@ -3,6 +3,7 @@
 Balka provides a harness-independent SDLC process, project knowledge, change state, and operations for agents. Read `README.md` for the project direction and `balka/001-harness-independence/intent.md` for the intent.
 
 - Define what Balka provides and what agents need to do. Keep the process, knowledge, operations, and controls independent of the app, model, or harness; do not introduce client-specific support lists or rules.
+- When defining the AI SDLC loop and its stages, follow the AI-native SDLC playbook, adapting its guidance to Balka's harness-independent direction. Within this loop work, keep additional methods and integrations for separate work requested by the owner; do not introduce them into these intents or their open questions.
 - Keep project intents under `balka/` in the project repository. Keep `AGENTS.md` sufficient to explain Balka's basics at the start; once the agent understands the user's request, it loads the relevant guidance on how to proceed.
 - Keep repository changes useful. Avoid duplicated facts, counts, and status summaries that create routine upkeep.
 - Git is the history. Edit files in place; never delete, recreate, or rename a file to bypass a rule or control.

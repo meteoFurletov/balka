@@ -9,3 +9,5 @@ See the [accepted harness-independence intent](balka/001-harness-independence/in
 The [AI SDLC loop intent](balka/002-ai-sdlc-loop/intent.md) defines Balka's core loop: Plan → Design → Build → Test → Deploy → Maintain → a new intent. Each stage will be developed through its own intent.
 
 The [AI SDLC Plan intent](balka/003-ai-sdlc-plan/intent.md) defines how agents clarify a need, capture it as `intent.md`, and obtain owner acceptance before Design.
+
+The [AI SDLC Design intent](balka/004-ai-sdlc-design/intent.md) defines how agents turn an accepted intent into a requirements and design spec for owner review before Build planning.
