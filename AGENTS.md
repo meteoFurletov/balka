@@ -13,5 +13,5 @@ Balka provides a harness-independent SDLC process, project knowledge, change sta
 - Include `ai-sdlc-<stage>` in AI SDLC stage directory names so their place in the loop is clear.
 - An intent that defines how intents are written must itself follow those requirements.
 - Ask the owner the open questions recorded in an intent; do not leave them only in the document.
-- Record the owner's acceptance or rejection in Git after their explicit decision in chat. Answers to open questions do not by themselves accept the intent.
+- Record the owner's acceptance or rejection in Git after their explicit decision in chat. Explicit acceptance authorizes committing and pushing the accepted changes to the current working branch without another confirmation. Answers to open questions do not by themselves accept the intent.
 - Apply the owner's explicit corrections consistently. When a correction establishes a reusable project preference, update this file in place during the same chat so future agents can follow it. Record the general rule, not the conversation; keep task-specific edits in their own documents.
