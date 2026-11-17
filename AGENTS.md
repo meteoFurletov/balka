@@ -4,8 +4,9 @@ Balka provides a harness-independent SDLC process, project knowledge, change sta
 
 - Define what Balka provides and what agents need to do. Keep the process, knowledge, operations, and controls independent of the app, model, or harness; do not introduce client-specific support lists or rules.
 - When defining the AI SDLC loop and its stages, follow the AI-native SDLC playbook, adapting its guidance to Balka's harness-independent direction. Within this loop work, keep additional methods and integrations for separate work requested by the owner; do not introduce them into these intents or their open questions.
+- Preserve the responsibilities of every play in a stage when adapting the playbook. Do not narrow a stage to a single play or substitute a project-specific example for its scope.
 - Keep project intents under `balka/` in the project repository. Keep `AGENTS.md` sufficient to explain Balka's basics at the start; once the agent understands the user's request, it loads the relevant guidance on how to proceed.
-- Keep work that is not ready for an intent in `balka/todo.md`. Check the list when drafting intents and link deferred work from the relevant intent to make its scope clear. When a todo item gets its own intent, link to it from the item.
+- Keep work that is not ready for an intent in `balka/todo.md`. Check the list when drafting intents and link deferred work from the relevant intent to make its scope clear. Remove a todo item once its work has an intent; do not keep a second tracking entry for that work.
 - Prioritize the core loop stages first, then project knowledge, reusable guidance, controls, and parallel work, in that order, followed by other supporting work.
 - Keep repository changes useful. Avoid duplicated facts, counts, and status summaries that create routine upkeep.
 - Git is the history. Edit files in place; never delete, recreate, or rename a file to bypass a rule or control.

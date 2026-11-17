@@ -16,4 +16,6 @@ The [AI SDLC Build intent](balka/005-ai-sdlc-build/intent.md) defines how agents
 
 The [AI SDLC Test intent](balka/006-ai-sdlc-test/intent.md) defines independent verification, correction and reverification of findings, and the evidence passed to delivery review.
 
+The [AI SDLC Deploy intent](balka/007-ai-sdlc-deploy/intent.md) defines agent review, enforced release approvals, and agent work in CI/CD through delivery and recovery.
+
 The [todo list](balka/todo.md) holds work to develop into future intents.
